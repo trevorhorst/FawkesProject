@@ -14,11 +14,13 @@ set( FAWKES_CORE_SOURCE_DIR src )
 # Header files to include
 set( FAWKES_CORE_INCLUDE ${FAWKES_CORE_INCLUDE}
     ${FAWKES_CORE_INCLUDE_DIR}/json/cjson.h
+    ${FAWKES_CORE_INCLUDE_DIR}/logger/log.h
     )
 
 # Source files to include
 set( FAWKES_CORE_SOURCE ${FAWKES_CORE_SOURCE}
     ${FAWKES_CORE_SOURCE_DIR}/json/cjson.cpp
+    ${FAWKES_CORE_SOURCE_DIR}/logger/log.cpp
     )
 
 # Library dependencies
