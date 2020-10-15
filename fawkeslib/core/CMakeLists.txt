@@ -15,6 +15,7 @@ set( FAWKES_CORE_SOURCE_DIR src )
 set( FAWKES_CORE_INCLUDE ${FAWKES_CORE_INCLUDE}
     ${FAWKES_CORE_INCLUDE_DIR}/json/cjson.h
     ${FAWKES_CORE_INCLUDE_DIR}/logger/log.h
+    ${FAWKES_CORE_INCLUDE_DIR}/option_parser.h
     )
 
 # Source files to include
