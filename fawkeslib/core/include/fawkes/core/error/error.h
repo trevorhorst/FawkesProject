@@ -25,6 +25,8 @@ public:
         , MAX
     };
 
+    const char *toString( Type type );
+
 };
 
 }

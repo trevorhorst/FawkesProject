@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include <errno.h>
 
+#include "fawkes/core/json/cjson.h"
 #include "fawkes/core/logger/log.h"
 #include "fawkes/core/error/error.h"
 

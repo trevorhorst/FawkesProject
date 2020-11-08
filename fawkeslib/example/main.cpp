@@ -9,10 +9,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <iostream>
+#include <thread>
 
 #include "fawkes/core/option_parser.h"
 #include "fawkes/core/json/cjson.h"
 #include "fawkes/core/logger/log.h"
+#include "fawkes/console/console.h"
 
 enum OptionIndex {
     UNKNOWN  = 0
@@ -57,6 +59,13 @@ int main( int argc, char *argv[] )
 
     free( hello );
     cJSON_Delete( test );
+
+    Fawkes::Console console;
+
+    std::thread *app = new std::thread( &Fawkes::Console::run, &console );
+
+    app->join();
+
 
     return 0;
 }

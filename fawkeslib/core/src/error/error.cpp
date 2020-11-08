@@ -16,4 +16,9 @@ const char* Error::type_text[] = {
     , "Generic Error"
 };
 
+const char *Error::toString( Type type )
+{
+    return type_text[ type ];
+}
+
 }
