@@ -12,5 +12,6 @@ set( CMAKE_CXX_FLAGS
     )
 
 add_subdirectory( core )
+add_subdirectory( console )
 
 add_subdirectory( example )

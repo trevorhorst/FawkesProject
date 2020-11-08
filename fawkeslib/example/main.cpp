@@ -27,7 +27,6 @@ const Option::Descriptor usage[] = {
     { 0, 0, nullptr, nullptr, nullptr, nullptr }
 };
 
-
 int main( int argc, char *argv[] )
 {
     argc -= ( argc > 0 );

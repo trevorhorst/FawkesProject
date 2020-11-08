@@ -13,6 +13,9 @@ set( FAWKES_CORE_SOURCE_DIR src )
 
 # Header files to include
 set( FAWKES_CORE_INCLUDE ${FAWKES_CORE_INCLUDE}
+    ${FAWKES_CORE_INCLUDE_DIR}/control/control.h
+    ${FAWKES_CORE_INCLUDE_DIR}/control/control_template.h
+    ${FAWKES_CORE_INCLUDE_DIR}/error/error.h
     ${FAWKES_CORE_INCLUDE_DIR}/json/cjson.h
     ${FAWKES_CORE_INCLUDE_DIR}/logger/log.h
     ${FAWKES_CORE_INCLUDE_DIR}/option_parser.h
@@ -20,6 +23,8 @@ set( FAWKES_CORE_INCLUDE ${FAWKES_CORE_INCLUDE}
 
 # Source files to include
 set( FAWKES_CORE_SOURCE ${FAWKES_CORE_SOURCE}
+    ${FAWKES_CORE_SOURCE_DIR}/control/control.cpp
+    ${FAWKES_CORE_SOURCE_DIR}/error/error.cpp
     ${FAWKES_CORE_SOURCE_DIR}/json/cjson.cpp
     ${FAWKES_CORE_SOURCE_DIR}/logger/log.cpp
     )
