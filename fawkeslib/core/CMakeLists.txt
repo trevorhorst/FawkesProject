@@ -18,7 +18,8 @@ set( FAWKES_CORE_INCLUDE ${FAWKES_CORE_INCLUDE}
     ${FAWKES_CORE_INCLUDE_DIR}/error/error.h
     ${FAWKES_CORE_INCLUDE_DIR}/json/cjson.h
     ${FAWKES_CORE_INCLUDE_DIR}/logger/log.h
-    ${FAWKES_CORE_INCLUDE_DIR}/network/unix/unix.h
+    ${FAWKES_CORE_INCLUDE_DIR}/network/unix/unix_client.h
+    ${FAWKES_CORE_INCLUDE_DIR}/network/unix/unix_server.h
     ${FAWKES_CORE_INCLUDE_DIR}/option_parser.h
     ${FAWKES_CORE_INCLUDE_DIR}/transport/client.h
     ${FAWKES_CORE_INCLUDE_DIR}/transport/server.h
@@ -30,7 +31,8 @@ set( FAWKES_CORE_SOURCE ${FAWKES_CORE_SOURCE}
     ${FAWKES_CORE_SOURCE_DIR}/error/error.cpp
     ${FAWKES_CORE_SOURCE_DIR}/json/cjson.cpp
     ${FAWKES_CORE_SOURCE_DIR}/logger/log.cpp
-    ${FAWKES_CORE_SOURCE_DIR}/network/unix/unix.cpp
+    ${FAWKES_CORE_SOURCE_DIR}/network/unix/unix_client.cpp
+    ${FAWKES_CORE_SOURCE_DIR}/network/unix/unix_server.cpp
     ${FAWKES_CORE_SOURCE_DIR}/transport/client.cpp
     ${FAWKES_CORE_SOURCE_DIR}/transport/server.cpp
     )

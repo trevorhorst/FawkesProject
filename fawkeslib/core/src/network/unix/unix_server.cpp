@@ -1,4 +1,4 @@
-#include "fawkes/core/network/unix/unix.h"
+#include "fawkes/core/network/unix/unix_server.h"
 
 namespace Fawkes
 {
@@ -59,6 +59,7 @@ int32_t UnixServer::run()
                     printf("Ending connection\n");
                 } else {
                     printf("-->%s\n", buffer);
+                    mDone = true;
                 }
             } // while (rval > 0);
             close( message );
