@@ -10,9 +10,14 @@ namespace Fawkes
 class UnixServer
         : Server
 {
+    static const char *socket_name;
+
 public:
     UnixServer();
-    int32_t listen() override;
+    int32_t run() override;
+
+private:
+    bool mDone;
 
 };
 
