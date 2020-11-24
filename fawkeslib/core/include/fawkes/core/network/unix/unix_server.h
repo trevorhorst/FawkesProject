@@ -10,14 +10,23 @@ namespace Fawkes
 class UnixServer
         : Server
 {
-    static const char *socket_name;
+    static const char *default_socket_name;
+    static const char *success_response;
 
 public:
-    UnixServer();
+    UnixServer( const char *socketName = default_socket_name );
+    ~UnixServer();
+
+    void stop();
+    bool listening();
+    const char *socketName();
     int32_t run() override;
+    int32_t stream();
 
 private:
     bool mDone;
+    bool mListening;
+    const char *mSocketName;
 
 };
 

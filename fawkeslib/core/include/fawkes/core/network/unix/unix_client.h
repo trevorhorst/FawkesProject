@@ -13,16 +13,21 @@ namespace Fawkes
 {
 
 class UnixClient
-        : Client
+        : public Client
 {
+    static const char *default_socket_path;
+    static const char *hello_world;
+
 public:
     UnixClient();
 
     int32_t send(const char *data) override;
+    int32_t stream(const char *data);
+
+    int32_t applySocketPath( const char *path );
 
 private:
-    static const char *hello_world;
-
+    char mSocketPath[ PATH_MAX ];
 };
 
 }

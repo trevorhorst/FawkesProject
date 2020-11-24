@@ -21,6 +21,7 @@ set( FAWKES_CORE_INCLUDE ${FAWKES_CORE_INCLUDE}
     ${FAWKES_CORE_INCLUDE_DIR}/network/unix/unix_client.h
     ${FAWKES_CORE_INCLUDE_DIR}/network/unix/unix_server.h
     ${FAWKES_CORE_INCLUDE_DIR}/option_parser.h
+    ${FAWKES_CORE_INCLUDE_DIR}/singleton.h
     ${FAWKES_CORE_INCLUDE_DIR}/transport/client.h
     ${FAWKES_CORE_INCLUDE_DIR}/transport/server.h
     )

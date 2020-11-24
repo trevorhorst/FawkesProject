@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 #include <errno.h>
+#include <linux/limits.h>
 
 #include "fawkes/core/json/cjson.h"
 #include "fawkes/core/logger/log.h"
