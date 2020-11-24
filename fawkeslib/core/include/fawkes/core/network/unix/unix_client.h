@@ -21,13 +21,19 @@ class UnixClient
 public:
     UnixClient();
 
-    int32_t send(const char *data) override;
-    int32_t stream(const char *data);
+    int32_t send( const char *data ) override;
+    int32_t stream( const char *data );
+
+    const char *socketPath();
+    const char *socketDestinationPath();
 
     int32_t applySocketPath( const char *path );
+    int32_t applySocketDestinationPath( const char *path );
 
 private:
     char mSocketPath[ PATH_MAX ];
+    char mSocketDestinationPath[ PATH_MAX ];
+
 };
 
 }

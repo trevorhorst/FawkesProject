@@ -44,11 +44,12 @@ void testConsole()
 
     Fawkes::UnixServer server;
     Fawkes::UnixClient client;
+    client.applySocketDestinationPath( server.socketPath() );
 
     Fawkes::Console *console = &Fawkes::Console::getInstance();
     console->applyClient( &client );
 
-    std::thread *serverThread = new std::thread( &Fawkes::UnixServer::run, &server );
+    std::thread *serverThread = new std::thread( &Fawkes::UnixServer::listen, &server );
     std::thread *app = new std::thread( &Fawkes::Console::run, console );
 
     app->join();
@@ -64,7 +65,7 @@ void testUnixServer()
     Fawkes::UnixServer server;
     Fawkes::UnixClient client;
 
-    std::thread *serverThread = new std::thread( &Fawkes::UnixServer::run, &server );
+    std::thread *serverThread = new std::thread( &Fawkes::UnixServer::listen, &server );
     usleep(1000000);
 
     client.send( "hello" );

@@ -8,7 +8,7 @@ class Server
 {
 public:
     virtual ~Server();
-    virtual int32_t run() = 0;
+    virtual int32_t listen() = 0;
 };
 
 }

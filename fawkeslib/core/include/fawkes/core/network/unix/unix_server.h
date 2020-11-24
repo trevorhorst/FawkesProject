@@ -1,6 +1,7 @@
 #include <sys/socket.h>
 #include <sys/un.h>
 #include <unistd.h>
+#include <string.h>
 
 #include "fawkes/core/transport/server.h"
 
@@ -18,15 +19,20 @@ public:
     ~UnixServer();
 
     void stop();
-    bool listening();
-    const char *socketName();
-    int32_t run() override;
+    int32_t listen() override;
     int32_t stream();
+
+    bool listening();
+    const char *socketPath();
+
+    int32_t applySocketPath( const char *path );
 
 private:
     bool mDone;
     bool mListening;
-    const char *mSocketName;
+
+    char mSocketPath[ PATH_MAX ];
+    int32_t mSocket;
 
 };
 
