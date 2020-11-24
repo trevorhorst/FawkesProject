@@ -11,6 +11,7 @@ const char *Console::history_file_location = "/tmp";
  */
 Console::Console()
     : mDone( false )
+    , mClient( nullptr )
 {
 
 }
@@ -87,14 +88,12 @@ int32_t Console::run()
         }
     }
 
-    if( !error ) {
-        if( write_history( hfile ) ) {
-            LOG_ERROR("write_history failed (%d) - (%s)", errno, strerror(errno) );
-            error = Error::Type::CTRL_OPERATION_FAILED;
-        } else {
-            // Keep the history to minimum.
-            history_truncate_file( hfile, HISTORY_LINES_MAX );
-        }
+    if( write_history( hfile ) ) {
+        LOG_ERROR("write_history failed (%d) - (%s)", errno, strerror(errno) );
+        error = Error::Type::CTRL_OPERATION_FAILED;
+    } else {
+        // Keep the history to minimum.
+        history_truncate_file( hfile, HISTORY_LINES_MAX );
     }
 
     // Restore previous flag settings
@@ -119,67 +118,77 @@ int32_t Console::quit()
     return error;
 }
 
+int32_t Console::applyClient( Client *client )
+{
+    int32_t error = Error::Type::NONE;
+    mClient = client;
+    return error;
+}
+
 void Console::evaluate( char *input )
 {
+    Console *console = &Console::getInstance();
+
     // Tokenize the input
     std::vector< std::string > tokenized = tokenize( input );
 
     if( tokenized.empty() ) {
         // The input is empty
+    } else if( tokenized.at( 0 ) == "quit" ) {
+        // The command is to quit, so lets quit. Nothing fancy here.
+        console->quit();
+    } else {
+
+        // Add the cmd string to the object
+        cJSON *msg    = cJSON_CreateObject();
+        cJSON *params = cJSON_CreateObject();
+        cJSON *cmd    = nullptr;
+
+        for( auto it = tokenized.begin(); it != tokenized.end(); it++ ) {
+            if( *it == tokenized.at( 0 ) ) {
+                // Add the command parameter
+                cmd = cJSON_CreateString( (*it).c_str() );
+            } else {
+                auto t = it;
+                it++;
+                if( it == tokenized.end() ) {
+                    printf( "Parameter mismatch\n" );
+                    break;
+                } else {
+                    // Parse the parameter
+                    cJSON *param = cJSON_Parse( (*it).c_str() );
+                    // Add the item to the parameter list
+                    cJSON_AddItemToObject( params, (*t).c_str(), param );
+                }
+            }
+        }
+
+        cJSON_AddItemToObject( msg, "cmd", cmd );
+        cJSON_AddItemToObject( msg, "params", params );
+
+        char *msgStr = cJSON_PrintUnformatted( msg );
+
+        if( console->client() ) {
+            console->client()->send( msgStr );
+        } else {
+            LOG_INFO( "No client available" );
+        }
+
+        cJSON_free( msgStr );
+
+        // Clean up the message, this should delete all the components
+        cJSON_Delete( msg );
+
     }
-    // } else if( tokenized.at( 0 ) == "quit" ) {
-    //     // The command is to quit, so lets quit. Nothing fancy here.
-    //     quit();
-    // } else {
 
-    //     // Add the cmd string to the object
-    //     cJSON *msg    = cJSON_CreateObject();
-    //     cJSON *params = cJSON_CreateObject();
-    //     cJSON *cmd    = nullptr;
-
-    //     for( auto it = tokenized.begin(); it != tokenized.end(); it++ ) {
-    //         if( *it == tokenized.at( 0 ) ) {
-    //             // Add the command parameter
-    //             cmd = cJSON_CreateString( (*it).c_str() );
-    //         } else {
-    //             auto t = it;
-    //             it++;
-    //             if( it == tokenized.end() ) {
-    //                 printf( "Parameter mismatch\n" );
-    //                 break;
-    //             } else {
-    //                 // Parse the parameter
-    //                 cJSON *param = cJSON_Parse( (*it).c_str() );
-    //                 // Add the item to the parameter list
-    //                 cJSON_AddItemToObject( params, (*t).c_str(), param );
-    //             }
-    //         }
-    //     }
-
-    //     cJSON_AddItemToObject( msg, PARAM_COMMAND, cmd );
-    //     cJSON_AddItemToObject( msg, PARAM_PARAMS, params );
-
-    //     char *msgStr = cJSON_PrintUnformatted( msg );
-
-    //     if( getInstance().isVerbose() ) {
-    //         printf( "%s\n", msgStr );
-    //     }
-
-    //     if( client ) {
-    //         client->send( msgStr );
-    //     } else {
-    //         LOG_INFO( "No client available" );
-    //     }
-
-    //     cJSON_free( msgStr );
-
-    //     // Clean up the message, this should delete all the components
-    //     cJSON_Delete( msg );
-
-    // }
-
-
-
+    if( input ) {
+        // Actual input exists
+        if( input[ 0 ] != '\0' ) {
+            // The input is more than just an empty string
+            add_history( input );
+        }
+        free( input );
+    }
 }
 
 std::vector< std::string > Console::tokenize( char *input, const char *delimiter )
@@ -210,6 +219,11 @@ std::vector< std::string > Console::tokenize( char *input, const char *delimiter
     }
 
     return tokenized;
+}
+
+Client *Console::client()
+{
+    return mClient;
 }
 
 }
