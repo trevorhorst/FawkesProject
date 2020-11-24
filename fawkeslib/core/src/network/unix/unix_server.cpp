@@ -66,19 +66,43 @@ int32_t UnixServer::run()
     struct sockaddr_un clientAddr;
     socklen_t clientLen = sizeof( clientAddr );
 
-    if( recvfrom( sock, buf, sizeof( buf ), 0, (struct sockaddr*)&clientAddr, &clientLen ) < 0 ) {
-        LOG_ERROR( "Datagram read failed: %s (%d)", strerror( errno ), errno );
-    } else {
-        LOG_INFO( "Datagram received: %s", buf );
-        LOG_INFO( "Datagram info: %s", clientAddr.sun_path );
-        if( sendto( sock
-                , success_response, strlen( success_response )
-                , 0
-                , reinterpret_cast< struct sockaddr* >( &clientAddr )
-                , sizeof( struct sockaddr_un ) ) < 0 ) {
-            LOG_ERROR( "%s (%d)", strerror( errno ), errno );
-        } else {
-            LOG_INFO( "Response sent" );
+    fd_set fds;
+    while( listening() ) {
+
+        // Configure the timeout for select
+        struct timeval tv;
+        tv.tv_sec = 0;
+        tv.tv_usec = 50000;
+
+        // Initialize the fd set
+        FD_ZERO( &fds );
+        FD_SET( sock, &fds );
+
+        // Start select
+        if( select( FD_SETSIZE , &fds, nullptr, nullptr, &tv ) < 0 ) {
+            LOG_ERROR( "select failed: %s (%d)", strerror( errno ), errno );
+            error = Error::Type::CTRL_OPERATION_FAILED;
+            // Step listening, the loop will exit on next iteration
+            stop();
+        }
+
+        if( FD_ISSET( sock, &fds )) {
+            //File descriptor is ready, read characters
+            if( recvfrom( sock, buf, sizeof( buf ), 0, (struct sockaddr*)&clientAddr, &clientLen ) < 0 ) {
+                LOG_ERROR( "Datagram read failed: %s (%d)", strerror( errno ), errno );
+            } else {
+                LOG_INFO( "Datagram received: %s", buf );
+                LOG_INFO( "Datagram info: %s", clientAddr.sun_path );
+                if( sendto( sock
+                        , success_response, strlen( success_response )
+                        , 0
+                        , reinterpret_cast< struct sockaddr* >( &clientAddr )
+                        , sizeof( struct sockaddr_un ) ) < 0 ) {
+                    LOG_ERROR( "%s (%d)", strerror( errno ), errno );
+                } else {
+                    LOG_INFO( "Response sent" );
+                }
+            }
         }
     }
 
