@@ -15,6 +15,8 @@
 #include "fawkes/core/json/cjson.h"
 #include "fawkes/core/logger/log.h"
 #include "fawkes/console/console.h"
+#include "fawkes/core/network/unix/unix_client.h"
+#include "fawkes/core/network/unix/unix_server.h"
 
 enum OptionIndex {
     UNKNOWN  = 0
@@ -28,6 +30,48 @@ const Option::Descriptor usage[] = {
     { HELP, 0, "h" , "help", Option::Arg::None, "  --help  \tPrint usage and exit." },
     { 0, 0, nullptr, nullptr, nullptr, nullptr }
 };
+
+void testConsole()
+{
+    cJSON *test = cJSON_CreateObject();
+    cJSON_AddStringToObject( test, "hello", "world" );
+
+    char *hello = cJSON_PrintUnformatted( test );
+    LOG_INFO( "%s", hello );
+
+    free( hello );
+    cJSON_Delete( test );
+
+    Fawkes::UnixServer server;
+    Fawkes::UnixClient client;
+
+    Fawkes::Console *console = &Fawkes::Console::getInstance();
+    console->applyClient( &client );
+
+    std::thread *serverThread = new std::thread( &Fawkes::UnixServer::run, &server );
+    std::thread *app = new std::thread( &Fawkes::Console::run, console );
+
+    app->join();
+    server.stop();
+    serverThread->join();
+
+    delete app;
+    delete serverThread;
+}
+
+void testUnixServer()
+{
+    Fawkes::UnixServer server;
+    Fawkes::UnixClient client;
+
+    std::thread *serverThread = new std::thread( &Fawkes::UnixServer::run, &server );
+    usleep(1000000);
+
+    client.send( "hello" );
+
+
+    serverThread->join();
+}
 
 int main( int argc, char *argv[] )
 {
@@ -51,21 +95,8 @@ int main( int argc, char *argv[] )
         return 0;
     }
 
-    cJSON *test = cJSON_CreateObject();
-    cJSON_AddStringToObject( test, "hello", "world" );
-
-    char *hello = cJSON_PrintUnformatted( test );
-    LOG_INFO( "%s", hello );
-
-    free( hello );
-    cJSON_Delete( test );
-
-    Fawkes::Console console;
-
-    std::thread *app = new std::thread( &Fawkes::Console::run, &console );
-
-    app->join();
-
+    // testUnixServer();
+    testConsole();
 
     return 0;
 }
