@@ -15,8 +15,10 @@ UnixServer::UnixServer( const char *socketPath )
     , mListening( false )
     , mSocketPath{ 0 }
     , mSocket( -1 )
+    , mCommandCallback( nullptr )
 {
     applySocketPath( socketPath );
+    applyCommandCallback( std::bind( &UnixServer::defaultHandler, this, std::placeholders::_1 ) );
 }
 
 /**
@@ -53,6 +55,20 @@ bool UnixServer::listening()
 const char *UnixServer::socketPath()
 {
     return mSocketPath;
+}
+
+/**
+ * @brief UnixServer::defaultHandler Default handler for data received by the server
+ * @param data Data received by the server
+ * @return Error code
+ */
+int32_t UnixServer::defaultHandler(const char *data)
+{
+    int32_t error = Error::Type::NONE;
+
+    LOG_INFO( "Default Handler: %s", data );
+
+    return error;
 }
 
 /**
@@ -116,6 +132,12 @@ int32_t UnixServer::listen()
             if( recvfrom( sock, buf, sizeof( buf ), 0, (struct sockaddr*)&clientAddr, &clientLen ) < 0 ) {
                 LOG_ERROR( "Datagram read failed: %s (%d)", strerror( errno ), errno );
             } else {
+
+                int32_t value = 0;
+                if( mCommandCallback ) {
+                    value = mCommandCallback( buf );
+                }
+
                 LOG_INFO( "Datagram received: %s", buf );
                 LOG_INFO( "Datagram info: %s", clientAddr.sun_path );
                 if( sendto( sock
@@ -216,6 +238,19 @@ int32_t UnixServer::applySocketPath( const char *path )
         error = Error::Type::CTRL_OPERATION_FAILED;
     }
 
+    return error;
+}
+
+/**
+ * @brief UnixServer::applyCommandCallback Applies a callback method for handling
+ *  received data
+ * @param callback Desired bound callback method
+ * @return Error code
+ */
+int32_t UnixServer::applyCommandCallback( CommandCallback callback )
+{
+    int32_t error = Error::Type::NONE;
+    mCommandCallback = callback;
     return error;
 }
 

@@ -31,6 +31,20 @@ const Option::Descriptor usage[] = {
     { 0, 0, nullptr, nullptr, nullptr, nullptr }
 };
 
+int32_t serverCallback( const char *data )
+{
+    cJSON *parsed = cJSON_Parse( data );
+    if( parsed == nullptr ) {
+        LOG_WARN( "Command string is invalid: %s", data );
+    } else {
+        char *json = cJSON_Print( parsed );
+        LOG_INFO( "\n%s", json );
+        cJSON_free( json );
+    }
+    cJSON_Delete( parsed );
+    return 0;
+}
+
 void testConsole()
 {
     cJSON *test = cJSON_CreateObject();
@@ -43,6 +57,7 @@ void testConsole()
     cJSON_Delete( test );
 
     Fawkes::UnixServer server;
+    server.applyCommandCallback( std::bind( serverCallback, std::placeholders::_1 ) );
     Fawkes::UnixClient client;
     client.applySocketDestinationPath( server.socketPath() );
 
