@@ -13,6 +13,21 @@ Command::Command( const char *name )
     applyName( name );
 }
 
+Command::~Command()
+{
+
+}
+
+const char *Command::name()
+{
+    return mName;
+}
+
+const Command::ParameterMap *Command::requiredMap()
+{
+    return &mRequiredMap;
+}
+
 int32_t Command::applyName( const char *name )
 {
     int32_t error = Error::Type::NONE;

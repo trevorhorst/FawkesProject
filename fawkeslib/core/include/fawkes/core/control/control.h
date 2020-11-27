@@ -5,6 +5,7 @@
 #include <errno.h>
 #include <linux/limits.h>
 
+#include "fawkes/core/common_types.h"
 #include "fawkes/core/json/cjson.h"
 #include "fawkes/core/logger/log.h"
 #include "fawkes/core/error/error.h"

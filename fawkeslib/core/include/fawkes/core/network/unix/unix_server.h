@@ -1,3 +1,6 @@
+#ifndef FAWKES_UNIX_SERVER
+#define FAWKES_UNIX_SERVER
+
 #include <sys/socket.h>
 #include <sys/un.h>
 #include <unistd.h>
@@ -44,3 +47,5 @@ private:
 };
 
 }
+
+#endif // FAWKES_UNIX_SERVER

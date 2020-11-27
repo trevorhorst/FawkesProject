@@ -40,6 +40,15 @@ public:
         return objects.size();
     }
 
+    static T *at( uint32_t id )
+    {
+        T *obj = nullptr;
+        if( id < objects.size() ) {
+            obj = objects.at( id );
+        }
+        return obj;
+    }
+
 private:
     static std::vector< T* > objects;
     uint32_t mId;

@@ -18,6 +18,7 @@
 #include "fawkes/core/network/unix/unix_client.h"
 #include "fawkes/core/network/unix/unix_server.h"
 #include "fawkes/core/command/command_handler.h"
+#include "fawkes/core/command/command_test.h"
 
 enum OptionIndex {
     UNKNOWN  = 0
@@ -58,6 +59,9 @@ void testConsole()
     cJSON_Delete( test );
 
     Fawkes::CommandHandler handler;
+
+    Fawkes::CommandTest cmdTest;
+    handler.addCommand( &cmdTest );
 
     Fawkes::UnixServer server;
     // server.applyCommandCallback( std::bind( serverCallback, std::placeholders::_1 ) );
