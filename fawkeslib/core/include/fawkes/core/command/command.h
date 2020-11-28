@@ -26,12 +26,13 @@ public:
     int32_t applyName( const char *name );
 
     virtual int32_t call( cJSON *params, cJSON *response ) = 0;
+    virtual int32_t processParameterMap( cJSON *parameters, const ParameterMap *map );
 
 protected:
     const ParameterMap *requiredMap();
-    const ParameterMap *mutableMap();
+    const ParameterMap *optionalMap();
 
-    ParameterMap mMutableMap;
+    ParameterMap mOptionalMap;
     ParameterMap mRequiredMap;
 
 private:

@@ -19,7 +19,10 @@ public:
         : Command( name )
         , mControlObject( nullptr )
     {
-
+        if( T::count() == 1 ) {
+            // Initialize the control object to the first item in the list
+            mControlObject = static_cast< T* >( T::at( 0 ) );
+        }
     }
 
     /**
@@ -33,32 +36,31 @@ public:
         int32_t error = Error::Type::NONE;
 
         // Iterate over the required parameters
-        for( auto it = requiredMap()->begin()
-             ; ( it != requiredMap()->end() ) && ( error == Error::Type::NONE )
-             ; it++ ) {
+        error = processParameterMap( params, requiredMap() );
 
-            // Retrieve parameter information
-            const char *paramName = it->first;
-            ParameterCallback paramCallback = it->second;
-
-            // Check if the parameter exists within the list of params received
-            cJSON *param = cJSON_DetachItemFromObject( params, paramName );
-            if( param == nullptr ) {
-                // Parameter NOT found, report it and set error
-                LOG_DEBUG( "Required parameter missing: %s", paramName );
-                error = Error::Type::PARAM_MISSING;
+        if( error == Error::Type::NONE ) {
+            if( mControlObject ) {
+                processParameterMap( params, optionalMap() );
             } else {
-                // Parameter found, perform callback to handle data and
-                // propogate error
-                error = paramCallback( param );
+                LOG_WARN( "Controle object is not available" );
+                error = Error::Type::CMD_FAILED;
             }
-
         }
+
+        /*
+        if( error && ( params->child == nullptr ) ) {
+            /// @todo If the parameter has no child, treat it as an accessor
+            LOG_TRACE( "PARAMS IS NULL" );
+        } else {
+            /// @todo If the parameter has a child, treat it as a mutator
+            LOG_TRACE( "PARAMS IS NOT NULL" );
+        }
+        */
 
         return error;
     }
 
-private:
+protected:
     T *mControlObject;
 
 };

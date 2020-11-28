@@ -44,7 +44,7 @@ int32_t UnixClient::send( const char *data )
         LOG_ERROR( "Socket failed to bind: %s (%d)", strerror( errno ), errno );
         return Error::Type::CTRL_OPERATION_FAILED;
     } else {
-        LOG_INFO( "Client socket bound to %s", clientAddr.sun_path );
+        LOG_DEBUG( "Client socket bound to %s", clientAddr.sun_path );
     }
 
     // Configure server socket info
@@ -57,12 +57,12 @@ int32_t UnixClient::send( const char *data )
         // perror("sending datagram message");
         LOG_ERROR( "Failed to send datagram: %s (%d)", strerror( errno ), errno );
     } else {
-        LOG_INFO( "Datagram sent... waiting for response" );
+        LOG_DEBUG( "Datagram sent... waiting for response" );
         char buf[1024];
         if( recvfrom( sock, buf, sizeof( buf ), 0, nullptr, nullptr ) < 0 ) {
             LOG_ERROR( "%s (%d)", strerror( errno ), errno );
         } else {
-            LOG_INFO( "Client: %s", buf );
+            LOG_DEBUG( "Client: %s", buf );
         }
     }
 

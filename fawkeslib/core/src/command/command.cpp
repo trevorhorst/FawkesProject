@@ -28,6 +28,42 @@ const Command::ParameterMap *Command::requiredMap()
     return &mRequiredMap;
 }
 
+const Command::ParameterMap *Command::optionalMap()
+{
+    return &mOptionalMap;
+}
+
+int32_t Command::processParameterMap( cJSON *parameters, const ParameterMap *map )
+{
+    int32_t error = Error::Type::NONE;
+
+    // Iterate over the required parameters
+    for( auto it = map->begin()
+         ; ( it != map->end() ) && ( error == Error::Type::NONE )
+         ; it++ ) {
+
+        // Retrieve parameter information
+        const char *parameterName = it->first;
+        ParameterCallback parameterCallback = it->second;
+
+        // Check if the parameter exists within the list of params received
+        cJSON *parameterData = cJSON_DetachItemFromObject( parameters, parameterName );
+        if( parameterData == nullptr ) {
+            // Parameter NOT found, report it and set error
+            LOG_DEBUG( "Required parameter missing: %s", parameterName );
+            error = Error::Type::PARAM_MISSING;
+        } else {
+            // Parameter found, perform callback to handle data and
+            // propogate error
+            error = parameterCallback( parameterData );
+        }
+
+        cJSON_Delete( parameterData );
+    }
+
+    return error;
+}
+
 int32_t Command::applyName( const char *name )
 {
     int32_t error = Error::Type::NONE;

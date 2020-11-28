@@ -14,11 +14,13 @@
 #include "fawkes/core/option_parser.h"
 #include "fawkes/core/json/cjson.h"
 #include "fawkes/core/logger/log.h"
-#include "fawkes/console/console.h"
 #include "fawkes/core/network/unix/unix_client.h"
 #include "fawkes/core/network/unix/unix_server.h"
 #include "fawkes/core/command/command_handler.h"
 #include "fawkes/core/command/command_test.h"
+
+#include "fawkes/console/console.h"
+#include "fawkes/console/command_console.h"
 
 enum OptionIndex {
     UNKNOWN  = 0
@@ -49,19 +51,9 @@ int32_t serverCallback( const char *data )
 
 void testConsole()
 {
-    cJSON *test = cJSON_CreateObject();
-    cJSON_AddStringToObject( test, "hello", "world" );
-
-    char *hello = cJSON_PrintUnformatted( test );
-    LOG_INFO( "%s", hello );
-
-    free( hello );
-    cJSON_Delete( test );
+    log_set_level( LOG_INFO );
 
     Fawkes::CommandHandler handler;
-
-    Fawkes::CommandTest cmdTest;
-    handler.addCommand( &cmdTest );
 
     Fawkes::UnixServer server;
     // server.applyCommandCallback( std::bind( serverCallback, std::placeholders::_1 ) );
@@ -72,14 +64,21 @@ void testConsole()
     Fawkes::Console *console = &Fawkes::Console::getInstance();
     console->applyClient( &client );
 
-    std::thread *serverThread = new std::thread( &Fawkes::UnixServer::listen, &server );
-    std::thread *app = new std::thread( &Fawkes::Console::run, console );
+    Fawkes::CommandTest cmdTest;
+    Fawkes::CommandConsole cmdConsole;
+    handler.addCommand( &cmdTest );
+    handler.addCommand( &cmdConsole );
 
-    app->join();
+    std::thread *serverThread = new std::thread( &Fawkes::UnixServer::listen, &server );
+    std::thread *appThread = new std::thread( &Fawkes::Console::run, console );
+
+    appThread->join();
+
+    // Once the application thread has stopped, stop the server from listening
     server.stop();
     serverThread->join();
 
-    delete app;
+    delete appThread;
     delete serverThread;
 }
 

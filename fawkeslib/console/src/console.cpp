@@ -115,6 +115,9 @@ int32_t Console::quit()
 {
     int32_t error = Error::NONE;
     mDone = true;
+    /// @note Uncommenting this prevents the additional prompt print, revist
+    /// this later down the road to cleanup output
+    // rl_callback_handler_remove();
     return error;
 }
 

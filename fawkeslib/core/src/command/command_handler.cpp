@@ -57,7 +57,7 @@ int32_t CommandHandler::process( const char *data )
 
             // Check the json data for a parameter entry
             cJSON *params = cJSON_GetObjectItem( parsedData, COMMAND_NAME_PARAMS );
-            it->second->call( params, response );
+            error = it->second->call( params, response );
             cJSON_Delete( response );
         }
     }

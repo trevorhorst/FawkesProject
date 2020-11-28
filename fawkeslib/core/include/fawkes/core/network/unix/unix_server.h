@@ -13,7 +13,7 @@ namespace Fawkes
 {
 
 class UnixServer
-        : Server
+        : public Server
 {
     static const char *default_socket_name;
     static const char *success_response;
