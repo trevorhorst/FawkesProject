@@ -117,8 +117,13 @@ int32_t Console::quit()
     mDone = true;
     /// @note Uncommenting this prevents the additional prompt print, revist
     /// this later down the road to cleanup output
-    // rl_callback_handler_remove();
+    rl_callback_handler_remove();
     return error;
+}
+
+bool Console::done()
+{
+    return mDone;
 }
 
 int32_t Console::applyClient( Client *client )

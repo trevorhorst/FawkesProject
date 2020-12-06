@@ -15,8 +15,8 @@ public:
      * @brief CommandTemplate Constructor
      * @param name Name of the command
      */
-    CommandTemplate( const char *name )
-        : Command( name )
+    CommandTemplate( const char *name, Type type )
+        : Command( name, type )
         , mControlObject( nullptr )
     {
         if( T::count() == 1 ) {
@@ -31,18 +31,24 @@ public:
      * @param response cJSOn formatted response container
      * @return Error code
      */
-    int32_t call( cJSON *params, cJSON *response ) override
+    int32_t call( cJSON *params, cJSON *response, cJSON *details ) override
     {
         int32_t error = Error::Type::NONE;
 
         // Iterate over the required parameters
-        error = processParameterMap( params, requiredMap() );
+        error = processParameterMap( params, response, details, requiredMap() );
 
         if( error == Error::Type::NONE ) {
             if( mControlObject ) {
-                processParameterMap( params, optionalMap() );
+                if( type() == Type::CONTROL ) {
+                    // Only try to handle optional parameters if the control object
+                    // has been set
+                    error = processParameterMap( params, response, details, optionalMap() );
+                } else if( type() == Type::QUERY ) {
+                    error = queryParameterMap( params, response, details, optionalMap() );
+                }
             } else {
-                LOG_WARN( "Controle object is not available" );
+                LOG_WARN( "Control object is not available" );
                 error = Error::Type::CMD_FAILED;
             }
         }

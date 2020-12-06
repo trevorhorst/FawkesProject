@@ -19,7 +19,7 @@ class UnixServer
     static const char *success_response;
 
 public:
-    using CommandCallback = std::function< int32_t ( const char * ) >;
+    using CommandCallback = std::function< int32_t ( const char *, char ** ) >;
 
     UnixServer( const char *socketName = default_socket_name );
     ~UnixServer();
@@ -42,7 +42,7 @@ private:
     int32_t mSocket;
     CommandCallback mCommandCallback;
 
-    int32_t defaultHandler( const char *data );
+    int32_t defaultHandler( const char *data, char **response );
 
 };
 

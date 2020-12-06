@@ -4,7 +4,7 @@ namespace Fawkes
 {
 
 CommandTest::CommandTest()
-    : CommandTemplate<UnixServer>( COMMAND_NAME_TEST )
+    : CommandTemplate<UnixServer>( COMMAND_NAME_TEST, Type::CONTROL )
 {
     mRequiredMap[ "param" ] = std::bind( &CommandTest::setParam, this, std::placeholders::_1 );
 }

@@ -36,6 +36,8 @@ public:
 
     int32_t applyClient( Client *client );
 
+    bool done();
+
     static void evaluate( char *input );
     static std::vector< std::string > tokenize(
             char *input, const char *delimiter = CONSOLE_DELIMITER_DEFAULT );

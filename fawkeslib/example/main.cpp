@@ -51,23 +51,34 @@ int32_t serverCallback( const char *data )
 
 void testConsole()
 {
+    // Allows only INFO statements or higher to be printed
     log_set_level( LOG_INFO );
 
     Fawkes::CommandHandler handler;
 
+    // Create a server and provide a command handler callback
     Fawkes::UnixServer server;
     // server.applyCommandCallback( std::bind( serverCallback, std::placeholders::_1 ) );
-    server.applyCommandCallback( std::bind( &Fawkes::CommandHandler::process, &handler, std::placeholders::_1 ) );
+    server.applyCommandCallback( std::bind( &Fawkes::CommandHandler::process
+                                            , &handler
+                                            , std::placeholders::_1
+                                            , std::placeholders::_2 ) );
+
+    // Create a unix socket client and provide a path for socket creation
     Fawkes::UnixClient client;
     client.applySocketDestinationPath( server.socketPath() );
 
+    // Create a console instance and provide a client for use by the server
     Fawkes::Console *console = &Fawkes::Console::getInstance();
     console->applyClient( &client );
 
+    // Make sure the commands are initialized after their control objects
     Fawkes::CommandTest cmdTest;
     Fawkes::CommandConsole cmdConsole;
+    Fawkes::CommandQConsole cmdQConsole;
     handler.addCommand( &cmdTest );
     handler.addCommand( &cmdConsole );
+    handler.addCommand( &cmdQConsole );
 
     std::thread *serverThread = new std::thread( &Fawkes::UnixServer::listen, &server );
     std::thread *appThread = new std::thread( &Fawkes::Console::run, console );
@@ -80,20 +91,6 @@ void testConsole()
 
     delete appThread;
     delete serverThread;
-}
-
-void testUnixServer()
-{
-    Fawkes::UnixServer server;
-    Fawkes::UnixClient client;
-
-    std::thread *serverThread = new std::thread( &Fawkes::UnixServer::listen, &server );
-    usleep(1000000);
-
-    client.send( "hello" );
-
-
-    serverThread->join();
 }
 
 int main( int argc, char *argv[] )

@@ -19,13 +19,15 @@ public:
         , PARAM_INVALID
         , PARAM_MISSING
         , PARAM_OUT_OF_RANGE
+        , PARAM_WRONG_TYPE
         , PARAM_ACCESS_DENIED
         , CTRL_OPERATION_FAILED
         , GENERIC
         , MAX
     };
 
-    const char *toString( Type type );
+    static const char *toString( int type );
+    static const char *toString( Type type );
 
 };
 

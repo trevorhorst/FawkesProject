@@ -11,10 +11,16 @@ const char* Error::type_text[] = {
     , "Parameter Invalid"
     , "Parameter Missing"
     , "Parameter Out of Range"
+    , "Parameter Wrong Type"
     , "Parameter Access Denied"
     , "Control Missing"
     , "Generic Error"
 };
+
+const char *Error::toString(int type)
+{
+    return toString( static_cast< Type >( type ) );
+}
 
 const char *Error::toString( Type type )
 {

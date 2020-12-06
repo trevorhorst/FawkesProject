@@ -18,7 +18,8 @@ UnixServer::UnixServer( const char *socketPath )
     , mCommandCallback( nullptr )
 {
     applySocketPath( socketPath );
-    applyCommandCallback( std::bind( &UnixServer::defaultHandler, this, std::placeholders::_1 ) );
+    applyCommandCallback( std::bind( &UnixServer::defaultHandler
+                                     , this, std::placeholders::_1, std::placeholders::_2 ) );
 }
 
 /**
@@ -62,11 +63,12 @@ const char *UnixServer::socketPath()
  * @param data Data received by the server
  * @return Error code
  */
-int32_t UnixServer::defaultHandler(const char *data)
+int32_t UnixServer::defaultHandler( const char *data, char **response )
 {
     int32_t error = Error::Type::NONE;
 
     LOG_INFO( "Default Handler: %s", data );
+    (void)response;
 
     return error;
 }
@@ -133,21 +135,29 @@ int32_t UnixServer::listen()
                 LOG_ERROR( "Datagram read failed: %s (%d)", strerror( errno ), errno );
             } else {
 
+                char *response = nullptr;
+
                 int32_t value = 0;
                 if( mCommandCallback ) {
-                    value = mCommandCallback( buf );
+                    value = mCommandCallback( buf, &response );
                 }
 
-                LOG_INFO( "Datagram received: %s", buf );
-                LOG_INFO( "Datagram info: %s", clientAddr.sun_path );
-                if( sendto( sock
-                        , success_response, strlen( success_response )
+                if( response == nullptr ) {
+                    LOG_WARN( "Command response is NULL" );
+                } else if( sendto( sock
+                        , response, strlen( response )
                         , 0
                         , reinterpret_cast< struct sockaddr* >( &clientAddr )
                         , sizeof( struct sockaddr_un ) ) < 0 ) {
                     LOG_ERROR( "%s (%d)", strerror( errno ), errno );
                 } else {
                     LOG_INFO( "Response sent" );
+                }
+
+                if( response ) {
+                    // Clean up any response that may have been created at the
+                    // lower levels
+                    free( response );
                 }
             }
         }

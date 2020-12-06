@@ -62,7 +62,7 @@ int32_t UnixClient::send( const char *data )
         if( recvfrom( sock, buf, sizeof( buf ), 0, nullptr, nullptr ) < 0 ) {
             LOG_ERROR( "%s (%d)", strerror( errno ), errno );
         } else {
-            LOG_DEBUG( "Client: %s", buf );
+            LOG_INFO( "Client: %s", buf );
         }
     }
 
