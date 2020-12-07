@@ -21,7 +21,7 @@ class UnixClient
 public:
     UnixClient();
 
-    int32_t send( const char *data ) override;
+    int32_t send( const char *data, char *response, int32_t responseLength ) override;
     int32_t stream( const char *data );
 
     const char *socketPath();

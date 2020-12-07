@@ -59,7 +59,6 @@ int32_t CommandHandler::process( const char *data , char **response )
         auto it = map()->find( cmd->valuestring );
         if( it == map()->end() ) {
             // The command does not exist
-            LOG_WARN( "Command is invalid: %s", cmd->valuestring );
             error = Error::Type::CMD_INVALID;
             cJSON_AddStringToObject( details, "type", Error::toString( error ) );
             cJSON_AddStringToObject( details, "details", cmd->valuestring );

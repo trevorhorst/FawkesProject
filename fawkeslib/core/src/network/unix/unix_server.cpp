@@ -151,7 +151,7 @@ int32_t UnixServer::listen()
                         , sizeof( struct sockaddr_un ) ) < 0 ) {
                     LOG_ERROR( "%s (%d)", strerror( errno ), errno );
                 } else {
-                    LOG_INFO( "Response sent" );
+                    LOG_TRACE( "Response sent" );
                 }
 
                 if( response ) {

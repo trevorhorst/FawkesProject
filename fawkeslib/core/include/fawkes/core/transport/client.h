@@ -11,7 +11,7 @@ class Client
 {
 public:
     virtual ~Client();
-    virtual int32_t send( const char *data ) = 0;
+    virtual int32_t send( const char *data, char *response, int32_t responseLength ) = 0;
 };
 
 }

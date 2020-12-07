@@ -22,7 +22,7 @@ UnixClient::UnixClient()
  * @param data Null terminated string of data to send
  * @return Error status
  */
-int32_t UnixClient::send( const char *data )
+int32_t UnixClient::send( const char *data, char *response , int32_t responseLength )
 {
     int32_t error = Error::Type::NONE;
 
@@ -58,11 +58,10 @@ int32_t UnixClient::send( const char *data )
         LOG_ERROR( "Failed to send datagram: %s (%d)", strerror( errno ), errno );
     } else {
         LOG_DEBUG( "Datagram sent... waiting for response" );
-        char buf[1024];
-        if( recvfrom( sock, buf, sizeof( buf ), 0, nullptr, nullptr ) < 0 ) {
+        if( recvfrom( sock, response, responseLength, 0, nullptr, nullptr ) < 0 ) {
             LOG_ERROR( "%s (%d)", strerror( errno ), errno );
         } else {
-            LOG_INFO( "Client: %s", buf );
+            // LOG_INFO( "Client: %s", buf );
         }
     }
 

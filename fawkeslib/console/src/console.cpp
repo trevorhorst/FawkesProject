@@ -175,9 +175,28 @@ void Console::evaluate( char *input )
         cJSON_AddItemToObject( msg, "params", params );
 
         char *msgStr = cJSON_PrintUnformatted( msg );
+        char msgRsp[ 1024 ] = { 0 };
 
         if( console->client() ) {
-            console->client()->send( msgStr );
+            console->client()->send( msgStr, msgRsp, 1024 );
+            cJSON *rsp = cJSON_Parse( msgRsp );
+            if( rsp ) {
+                cJSON *results = cJSON_GetObjectItem( rsp, "results" );
+                if( results ) {
+                    char *str = cJSON_Print( results );
+                    printf( "%s\n", str );
+                    cJSON_free( str );
+                } else {
+                    cJSON *error = cJSON_GetObjectItem( rsp, "error" );
+                    if( error ) {
+                        char *str = cJSON_Print( error );
+                        printf( "%s\n", str );
+                        cJSON_free( str );
+                    }
+                }
+            }
+            cJSON_Delete( rsp );
+
         } else {
             LOG_INFO( "No client available" );
         }
