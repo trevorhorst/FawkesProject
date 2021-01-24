@@ -13,11 +13,13 @@ set( FAWKES_CONSOLE_SOURCE_DIR src )
 set( FAWKES_CONSOLE_INCLUDE ${FAWKES_CONSOLE_INCLUDE}
     ${FAWKES_CONSOLE_INCLUDE_DIR}/console.h
     ${FAWKES_CONSOLE_INCLUDE_DIR}/command_console.h
+    ${FAWKES_CONSOLE_INCLUDE_DIR}/command_help.h
     )
 
 set( FAWKES_CONSOLE_SOURCE ${FAWKES_CONSOLE_SOURCE}
     ${FAWKES_CONSOLE_SOURCE_DIR}/console.cpp
     ${FAWKES_CONSOLE_SOURCE_DIR}/command_console.cpp
+    ${FAWKES_CONSOLE_SOURCE_DIR}/command_help.cpp
     )
 
 add_library(

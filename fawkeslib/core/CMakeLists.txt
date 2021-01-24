@@ -15,11 +15,13 @@ set( FAWKES_CORE_SOURCE_DIR src )
 set( FAWKES_CORE_INCLUDE ${FAWKES_CORE_INCLUDE}
     ${FAWKES_CORE_INCLUDE_DIR}/command/command.h
     ${FAWKES_CORE_INCLUDE_DIR}/common_types.h
+    ${FAWKES_CORE_INCLUDE_DIR}/command/command_debug.h
     ${FAWKES_CORE_INCLUDE_DIR}/command/command_handler.h
     ${FAWKES_CORE_INCLUDE_DIR}/command/command_template.h
     ${FAWKES_CORE_INCLUDE_DIR}/command/command_test.h
     ${FAWKES_CORE_INCLUDE_DIR}/control/control.h
     ${FAWKES_CORE_INCLUDE_DIR}/control/control_template.h
+    ${FAWKES_CORE_INCLUDE_DIR}/debug.h
     ${FAWKES_CORE_INCLUDE_DIR}/error/error.h
     ${FAWKES_CORE_INCLUDE_DIR}/json/cjson.h
     ${FAWKES_CORE_INCLUDE_DIR}/logger/log.h
@@ -34,10 +36,12 @@ set( FAWKES_CORE_INCLUDE ${FAWKES_CORE_INCLUDE}
 # Source files to include
 set( FAWKES_CORE_SOURCE ${FAWKES_CORE_SOURCE}
     ${FAWKES_CORE_SOURCE_DIR}/command/command.cpp
+    ${FAWKES_CORE_SOURCE_DIR}/command/command_debug.cpp
     ${FAWKES_CORE_SOURCE_DIR}/command/command_handler.cpp
     ${FAWKES_CORE_SOURCE_DIR}/command/command_test.cpp
     ${FAWKES_CORE_SOURCE_DIR}/common_types.cpp
     ${FAWKES_CORE_SOURCE_DIR}/control/control.cpp
+    ${FAWKES_CORE_SOURCE_DIR}/debug.cpp
     ${FAWKES_CORE_SOURCE_DIR}/error/error.cpp
     ${FAWKES_CORE_SOURCE_DIR}/json/cjson.cpp
     ${FAWKES_CORE_SOURCE_DIR}/logger/log.cpp

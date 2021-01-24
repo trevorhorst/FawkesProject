@@ -160,8 +160,8 @@ void Console::evaluate( char *input )
                 auto t = it;
                 it++;
                 if( it == tokenized.end() ) {
-                    printf( "Parameter mismatch\n" );
-                    break;
+                    LOG_WARN( "Parameter mismatch" );
+                    return;
                 } else {
                     // Parse the parameter
                     cJSON *param = cJSON_Parse( (*it).c_str() );
@@ -181,19 +181,22 @@ void Console::evaluate( char *input )
             console->client()->send( msgStr, msgRsp, 1024 );
             cJSON *rsp = cJSON_Parse( msgRsp );
             if( rsp ) {
-                cJSON *results = cJSON_GetObjectItem( rsp, "results" );
-                if( results ) {
-                    char *str = cJSON_Print( results );
-                    printf( "%s\n", str );
-                    cJSON_free( str );
-                } else {
-                    cJSON *error = cJSON_GetObjectItem( rsp, "error" );
-                    if( error ) {
-                        char *str = cJSON_Print( error );
-                        printf( "%s\n", str );
-                        cJSON_free( str );
-                    }
-                }
+                char *str = cJSON_Print( rsp );
+                printf( "%s\n", str );
+                cJSON_free( str );
+                // cJSON *results = cJSON_GetObjectItem( rsp, "results" );
+                // if( results ) {
+                //     char *str = cJSON_Print( results );
+                //     printf( "%s\n", str );
+                //     cJSON_free( str );
+                // } else {
+                //     cJSON *error = cJSON_GetObjectItem( rsp, "error" );
+                //     if( error ) {
+                //         char *str = cJSON_Print( error );
+                //         printf( "%s\n", str );
+                //         cJSON_free( str );
+                //     }
+                // }
             }
             cJSON_Delete( rsp );
 

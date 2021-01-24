@@ -6,10 +6,12 @@ namespace Fawkes
 CommandConsole::CommandConsole()
     : CommandTemplate< Console >( COMMAND_NAME_CONSOLE, Type::CONTROL )
 {
-    mOptionalMap[ COMMAND_NAME_QUIT ] = BIND_PARAMETER( &CommandConsole::quit );
+    mMutableMap[ COMMAND_NAME_QUIT ] = BIND_PARAMETER( &CommandConsole::setQuit );
+
+    mAccessableMap[ COMMAND_NAME_DONE ] = BIND_PARAMETER( &CommandConsole::done );
 }
 
-int32_t CommandConsole::quit( cJSON *json )
+int32_t CommandConsole::setQuit( cJSON *json )
 {
     int32_t error = Error::Type::NONE;
     if( cJSON_IsBool( json ) ) {
@@ -22,13 +24,7 @@ int32_t CommandConsole::quit( cJSON *json )
     return error;
 }
 
-CommandQConsole::CommandQConsole()
-    : CommandTemplate<Console>( COMMAND_NAME_QCONSOLE, Type::QUERY )
-{
-    mOptionalMap[ COMMAND_NAME_DONE] = BIND_PARAMETER( &CommandQConsole::done );
-}
-
-int32_t CommandQConsole::done( cJSON *json )
+int32_t CommandConsole::done( cJSON *json )
 {
     int32_t error = Error::Type::NONE;
     cJSON_AddBoolToObject( json, COMMAND_NAME_DONE, mControlObject->done() );

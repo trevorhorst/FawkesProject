@@ -18,9 +18,11 @@
 #include "fawkes/core/network/unix/unix_server.h"
 #include "fawkes/core/command/command_handler.h"
 #include "fawkes/core/command/command_test.h"
+#include "fawkes/core/command/command_debug.h"
 
 #include "fawkes/console/console.h"
 #include "fawkes/console/command_console.h"
+#include "fawkes/console/command_help.h"
 
 enum OptionIndex {
     UNKNOWN  = 0
@@ -51,8 +53,9 @@ int32_t serverCallback( const char *data )
 
 void testConsole()
 {
+    Fawkes::Debug debug;
     // Allows only INFO statements or higher to be printed
-    log_set_level( LOG_INFO );
+    debug.setLevel( LOG_INFO );
 
     Fawkes::CommandHandler handler;
 
@@ -73,12 +76,14 @@ void testConsole()
     console->applyClient( &client );
 
     // Make sure the commands are initialized after their control objects
-    Fawkes::CommandTest cmdTest;
     Fawkes::CommandConsole cmdConsole;
-    Fawkes::CommandQConsole cmdQConsole;
+    Fawkes::CommandHelp cmdHelp;
+    Fawkes::CommandTest cmdTest;
+    Fawkes::CommandDebug cmdDebug;
     handler.addCommand( &cmdTest );
     handler.addCommand( &cmdConsole );
-    handler.addCommand( &cmdQConsole );
+    handler.addCommand( &cmdHelp );
+    handler.addCommand( &cmdDebug );
 
     std::thread *serverThread = new std::thread( &Fawkes::UnixServer::listen, &server );
     std::thread *appThread = new std::thread( &Fawkes::Console::run, console );

@@ -35,17 +35,23 @@ public:
     int32_t applyName( const char *name );
 
     virtual int32_t call( cJSON *params, cJSON *response, cJSON *details ) = 0;
+    virtual int32_t setup();
+    virtual int32_t teardown();
     virtual int32_t processParameterMap( cJSON *parameters, cJSON *response
                                          , cJSON *details, const ParameterMap *map );
-    virtual int32_t queryParameterMap( cJSON *parameters, cJSON *response
-                                         , cJSON *details, const ParameterMap *map );
+    virtual int32_t mutate( cJSON *parameters, cJSON *response, cJSON *details );
+    virtual int32_t access( cJSON *response, cJSON *details );
 
 protected:
     const ParameterMap *requiredMap();
     const ParameterMap *optionalMap();
+    const ParameterMap *mutableMap();
+    const ParameterMap *accessableMap();
 
-    ParameterMap mOptionalMap;
     ParameterMap mRequiredMap;
+    ParameterMap mOptionalMap;
+    ParameterMap mMutableMap;
+    ParameterMap mAccessableMap;
 
 private:
     char mName[ COMMAND_NAME_MAX ];

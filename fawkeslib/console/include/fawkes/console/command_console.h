@@ -18,15 +18,7 @@ class CommandConsole
 public:
     CommandConsole();
 
-    int32_t quit( cJSON *json );
-
-};
-
-class CommandQConsole
-        : public CommandTemplate< Console >
-{
-public:
-    CommandQConsole();
+    int32_t setQuit( cJSON *json );
 
     int32_t done( cJSON *json );
 };

@@ -81,7 +81,6 @@ int32_t UnixServer::listen()
 {
     int32_t error = Error::Type::NONE;
 
-    struct sockaddr_un server;
     char buf[ 1024 ] = { 0 };
 
     // Open a new datagram unix socket
@@ -91,6 +90,7 @@ int32_t UnixServer::listen()
         return Error::Type::CTRL_OPERATION_FAILED;
     }
 
+    struct sockaddr_un server;
     server.sun_family = AF_UNIX;
     strcpy( server.sun_path, socketPath() );
 
@@ -130,7 +130,7 @@ int32_t UnixServer::listen()
         }
 
         if( FD_ISSET( sock, &fds )) {
-            //File descriptor is ready, read characters
+            // File descriptor is ready, read characters
             if( recvfrom( sock, buf, sizeof( buf ), 0, (struct sockaddr*)&clientAddr, &clientLen ) < 0 ) {
                 LOG_ERROR( "Datagram read failed: %s (%d)", strerror( errno ), errno );
             } else {

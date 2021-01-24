@@ -13,11 +13,21 @@ CommandHandler::CommandHandler()
 
 /**
  * @brief CommandHandler::map Retrieves a pointer to the command map
- * @return
+ * @return CharHashMap pointer to command map
  */
 const Types::CharHashMap< Command* > *CommandHandler::map()
 {
     return &mCommandMap;
+}
+
+/**
+ * @brief CommandHandler::sortedMap Retrieves a sorted command map
+ * @return CharMap sorted command map
+ */
+const Types::CharMap< Command* > CommandHandler::sortedMap()
+{
+    Types::CharMap< Command* > sorted( mCommandMap.begin(), mCommandMap.end( ) );
+    return sorted;
 }
 
 /**
@@ -27,10 +37,17 @@ const Types::CharHashMap< Command* > *CommandHandler::map()
  */
 int32_t CommandHandler::process( const char *data , char **response )
 {
+
+    /// @note Trying to emulate this pattern:
+    /// {"cmd": "qrspddc", "error": {"code": 4, "details": "Command 'qrspddc' failed.", "type": "Command Failed"}, "msg": 1168563323, "rsp": 21, "success": false}
+
     int32_t error = Error::Type::NONE;
 
     // Container to capture responseJson data
     cJSON *responseJson = cJSON_CreateObject();
+    cJSON *details = cJSON_CreateObject();
+    cJSON *results = cJSON_CreateObject();
+
 
     // Parse the input data
     cJSON *parsedData = cJSON_Parse( data );
@@ -38,49 +55,58 @@ int32_t CommandHandler::process( const char *data , char **response )
 
     // Check validity of the json data
     if( parsedData == nullptr ) {
-        LOG_WARN( "Unable to process input: %s", data );
-        error = Error::Type::CTRL_OPERATION_FAILED;
+        // We were unable to parse the data
+        LOG_WARN( "Malformed JSON pattern" );
+        error = Error::Type::SYNTAX;
+        cJSON_AddNumberToObject( details, "code", error );
+        cJSON_AddStringToObject( details, "type", Error::toString( error ) );
+        cJSON_AddStringToObject( details, "details", "Malformed JSON pattern" );
     } else {
         // Check the json data for a command entry
         cmd = cJSON_GetObjectItem( parsedData, COMMAND_NAME_CMD );
-    }
 
-    if( error || !cJSON_IsString( cmd ) ) {
-        LOG_WARN( "Malformed JSON pattern" );
-        error = Error::Type::CTRL_OPERATION_FAILED;
-    } else {
-        // Add the command name to the response string
-        cJSON_AddStringToObject( responseJson, COMMAND_NAME_CMD, cmd->valuestring );
-
-        cJSON *details = cJSON_CreateObject();
-        cJSON *results = cJSON_CreateObject();
-
-        // Check if the command exists in our map
-        auto it = map()->find( cmd->valuestring );
-        if( it == map()->end() ) {
-            // The command does not exist
-            error = Error::Type::CMD_INVALID;
+        if( !cJSON_IsString( cmd ) ) {
+            // The command is not a string or there is no cmd parameter
+            LOG_WARN( "Unable to process input: %s", data );
+            error = Error::Type::CMD_MISSING;
+            cJSON_AddNumberToObject( details, "code", error );
             cJSON_AddStringToObject( details, "type", Error::toString( error ) );
-            cJSON_AddStringToObject( details, "details", cmd->valuestring );
+            cJSON_AddStringToObject( details, "details", "Command identifier not found" );
         } else {
-            // Check the json data for a parameter entry
-            cJSON *params = cJSON_GetObjectItem( parsedData, COMMAND_NAME_PARAMS );
-            error = it->second->call( params, results, details );
-        }
+            // The command is valid and we can attempt to execute it
 
-        if( error ) {
-            // Add the error object to the response json
-            cJSON_AddItemToObject( responseJson, "error", details );
-            // Delete the unused results
-            cJSON_Delete( results );
-        } else {
-            // Add the results object to the response json
-            cJSON_AddItemToObject( responseJson, "results", results );
-            // Delete the unused error details
-            cJSON_Delete( details );
-        }
+            // Start forming the response by adding the command name
+            cJSON_AddStringToObject( responseJson, COMMAND_NAME_CMD, cmd->valuestring );
 
+            // Check if the command exists in our map
+            auto it = map()->find( cmd->valuestring );
+            if( it == map()->end() ) {
+                // The command does not exist
+                error = Error::Type::CMD_INVALID;
+                cJSON_AddNumberToObject( details, "code", error );
+                cJSON_AddStringToObject( details, "type", Error::toString( error ) );
+                cJSON_AddStringToObject( details, "details", cmd->valuestring );
+            } else {
+                // Check the json data for a parameter entry
+                cJSON *params = cJSON_GetObjectItem( parsedData, COMMAND_NAME_PARAMS );
+                error = it->second->call( params, results, details );
+            }
+
+            if( error ) {
+                // Add the error object to the response json
+                cJSON_AddItemToObject( responseJson, "error", details );
+                // Delete the unused results
+                cJSON_Delete( results );
+            } else {
+                // Add the results object to the response json
+                cJSON_AddItemToObject( responseJson, "results", results );
+                // Delete the unused error details
+                cJSON_Delete( details );
+            }
+
+        }
     }
+
 
 
     cJSON_AddBoolToObject( responseJson, COMMAND_NAME_SUCCESS, error ? false : true );

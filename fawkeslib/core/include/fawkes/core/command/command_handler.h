@@ -6,6 +6,7 @@
 #include "fawkes/core/json/cjson.h"
 #include "fawkes/core/command/command.h"
 #include "fawkes/core/common_types.h"
+#include "fawkes/core/control/control_template.h"
 
 #define COMMAND_NAME_CMD        "cmd"
 #define COMMAND_NAME_PARAMS     "params"
@@ -16,6 +17,7 @@ namespace Fawkes
 {
 
 class CommandHandler
+        : public ControlTemplate< CommandHandler >
 {
 public:
     CommandHandler();
@@ -24,6 +26,7 @@ public:
     int32_t process( const char *data, char **response );
 
     const Types::CharHashMap< Command* > *map();
+    const Types::CharMap< Command* > sortedMap();
 
 private:
     Types::CharHashMap< Command* > mCommandMap;

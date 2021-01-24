@@ -35,33 +35,32 @@ public:
     {
         int32_t error = Error::Type::NONE;
 
+        setup();
+
         // Iterate over the required parameters
         error = processParameterMap( params, response, details, requiredMap() );
 
-        if( error == Error::Type::NONE ) {
+        if( error == Error::Type::NONE )  {
             if( mControlObject ) {
-                if( type() == Type::CONTROL ) {
-                    // Only try to handle optional parameters if the control object
-                    // has been set
-                    error = processParameterMap( params, response, details, optionalMap() );
-                } else if( type() == Type::QUERY ) {
-                    error = queryParameterMap( params, response, details, optionalMap() );
+                // There is a control object to operate with
+                if( params->child == nullptr ) {
+                    // There are no more parameters, query the control
+                    error = access( response, details );
+                } else {
+                    // There are more parameters, mutate the control
+                    error = mutate( params, response, details );
                 }
+
             } else {
                 LOG_WARN( "Control object is not available" );
                 error = Error::Type::CMD_FAILED;
+                cJSON_AddNumberToObject( details, "code", error );
+                cJSON_AddStringToObject( details, "type", Error::toString( error ) );
+                cJSON_AddStringToObject( details, "details", "Control is unavailable" );
             }
         }
 
-        /*
-        if( error && ( params->child == nullptr ) ) {
-            /// @todo If the parameter has no child, treat it as an accessor
-            LOG_TRACE( "PARAMS IS NULL" );
-        } else {
-            /// @todo If the parameter has a child, treat it as a mutator
-            LOG_TRACE( "PARAMS IS NOT NULL" );
-        }
-        */
+        teardown();
 
         return error;
     }
