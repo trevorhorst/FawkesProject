@@ -142,6 +142,8 @@ int32_t Command::mutate( cJSON *parameters, cJSON *response, cJSON *details )
 {
     int32_t error = Error::Type::NONE;
 
+    (void)response;
+
     const ParameterMap *map = mutableMap();
 
     // Iterate over the required parameters
@@ -157,17 +159,11 @@ int32_t Command::mutate( cJSON *parameters, cJSON *response, cJSON *details )
         cJSON *parameterData = cJSON_DetachItemFromObject( parameters, parameterName );
 
         if( parameterData == nullptr ) {
-            // The parameter was NOT found
-            if( map == requiredMap() ) {
-                // If the parameter map is required, report as an error
-                LOG_DEBUG( "Required parameter missing: %s", parameterName );
-                error = Error::Type::PARAM_MISSING;
-            }
+            // The parameter was NOT found, this is not an error
         } else {
             // The parameter was found, perform callback to handle data and
             // propogate error
             error = parameterCallback( parameterData );
-
         }
 
         if( error ) {
