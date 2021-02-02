@@ -1,5 +1,5 @@
-#ifndef FAWKES_UNIX_SERVER
-#define FAWKES_UNIX_SERVER
+#ifndef FAWKES_UNIX_SERVER_H
+#define FAWKES_UNIX_SERVER_H
 
 #include <sys/socket.h>
 #include <sys/un.h>
@@ -48,4 +48,4 @@ private:
 
 }
 
-#endif // FAWKES_UNIX_SERVER
+#endif // FAWKES_UNIX_SERVER_H

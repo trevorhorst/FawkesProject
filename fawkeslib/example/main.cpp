@@ -14,6 +14,8 @@
 #include "fawkes/core/option_parser.h"
 #include "fawkes/core/json/cjson.h"
 #include "fawkes/core/logger/log.h"
+#include "fawkes/core/network/udp/udp_client.h"
+#include "fawkes/core/network/udp/udp_server.h"
 #include "fawkes/core/network/unix/unix_client.h"
 #include "fawkes/core/network/unix/unix_server.h"
 #include "fawkes/core/command/command_handler.h"
@@ -59,9 +61,9 @@ void testConsole()
 
     Fawkes::CommandHandler handler;
 
+    /**
     // Create a server and provide a command handler callback
     Fawkes::UnixServer server;
-    // server.applyCommandCallback( std::bind( serverCallback, std::placeholders::_1 ) );
     server.applyCommandCallback( std::bind( &Fawkes::CommandHandler::process
                                             , &handler
                                             , std::placeholders::_1
@@ -70,6 +72,18 @@ void testConsole()
     // Create a unix socket client and provide a path for socket creation
     Fawkes::UnixClient client;
     client.applySocketDestinationPath( server.socketPath() );
+    **/
+
+    Fawkes::UdpServer server;
+    server.applyPort( 19091 );
+    server.applyResponseHandler( std::bind( &Fawkes::CommandHandler::process
+                                            , &handler
+                                            , std::placeholders::_1
+                                            , std::placeholders::_2 ) );
+
+    // Create a unix socket client and provide a path for socket creation
+    Fawkes::UdpClient client;
+    client.applyPort( 19091 );
 
     // Create a console instance and provide a client for use by the server
     Fawkes::Console *console = &Fawkes::Console::getInstance();
@@ -85,7 +99,10 @@ void testConsole()
     handler.addCommand( &cmdHelp );
     handler.addCommand( &cmdDebug );
 
-    std::thread *serverThread = new std::thread( &Fawkes::UnixServer::listen, &server );
+    int32_t (Fawkes::UdpServer::*listen)() = &Fawkes::UdpServer::listen;
+    std::thread *serverThread = new std::thread( listen, &server );
+
+    // std::thread *serverThread = new std::thread( &Fawkes::UnixServer::listen, &server );
     std::thread *appThread = new std::thread( &Fawkes::Console::run, console );
 
     appThread->join();
