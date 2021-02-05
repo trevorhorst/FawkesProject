@@ -17,13 +17,14 @@ class UdpClient
 public:
     UdpClient();
 
-    int32_t open( int16_t port );
+    int32_t open( int16_t port, const char *address = nullptr );
     int32_t send( const char *data, char *response, int32_t responseLength ) override;
 
     int32_t applyPort( int16_t port );
 
 private:
     int16_t mPort;
+    int32_t mSocket;
 };
 
 }

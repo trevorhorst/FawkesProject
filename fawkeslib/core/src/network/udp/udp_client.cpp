@@ -6,8 +6,16 @@ namespace Fawkes
 UdpClient::UdpClient()
     : Client()
     , mPort( 0 )
+    , mSocket( -1 )
 {
 
+}
+
+int32_t UdpClient::open( int16_t port, const char *address )
+{
+    int32_t error = 0;
+
+    return 0;
 }
 
 int32_t UdpClient::send( const char *data, char *response, int32_t responseLength )
