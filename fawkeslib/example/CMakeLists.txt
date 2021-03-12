@@ -22,5 +22,6 @@ target_link_libraries(
     PRIVATE
         FawkesLib::Core
         FawkesLib::Console
+        FawkesLib::Http
         pthread
     )

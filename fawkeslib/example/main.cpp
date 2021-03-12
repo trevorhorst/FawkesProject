@@ -24,6 +24,9 @@
 #include "fawkes/console/command_console.h"
 #include "fawkes/console/command_help.h"
 
+#include "fawkes/http/server.h"
+#include "fawkes/http/client.h"
+
 enum OptionIndex {
     UNKNOWN  = 0
     , HELP
@@ -49,6 +52,42 @@ int32_t serverCallback( const char *data )
     }
     cJSON_Delete( parsed );
     return 0;
+}
+
+void testHttp()
+{
+    Fawkes::Debug debug;
+    debug.setLevel( LOG_INFO );
+
+    Fawkes::CommandHandler handler;
+
+    Fawkes::HttpServer server;
+    server.applyCommandCallback( std::bind( &Fawkes::CommandHandler::process
+                                            , &handler
+                                            , std::placeholders::_1
+                                            , std::placeholders::_2 ) );
+
+    Fawkes::HttpClient client;
+
+    // Create a console instance and provide a client for use by the server
+    Fawkes::Console *console = &Fawkes::Console::getInstance();
+    console->applyClient( &client );
+
+    Fawkes::CommandConsole cmdConsole;
+    Fawkes::CommandHelp cmdHelp;
+    Fawkes::CommandTest cmdTest;
+    Fawkes::CommandDebug cmdDebug;
+    handler.addCommand( &cmdTest );
+    handler.addCommand( &cmdConsole );
+    handler.addCommand( &cmdHelp );
+    handler.addCommand( &cmdDebug );
+
+    server.listen();
+    std::thread *appThread = new std::thread( &Fawkes::Console::run, console );
+
+    appThread->join();
+
+    delete appThread;
 }
 
 void testConsole()
@@ -121,7 +160,8 @@ int main( int argc, char *argv[] )
     }
 
     // testUnixServer();
-    testConsole();
+    // testConsole();
+    testHttp();
 
     return 0;
 }

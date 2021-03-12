@@ -1,3 +1,6 @@
+#ifndef FAWKES_SERVER_H
+#define FAWKES_SERVER_H
+
 #include "fawkes/core/control/control_template.h"
 
 namespace Fawkes
@@ -12,3 +15,5 @@ public:
 };
 
 }
+
+#endif // FAWKES_SERVER_H
