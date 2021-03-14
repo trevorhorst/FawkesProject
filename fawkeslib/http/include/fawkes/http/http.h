@@ -69,23 +69,6 @@ enum Status : int32_t {
     , HTTPVERSIONNOTSUPPORTED        = 505
 };
 
-class Body {
-public:
-    Body();
-    ~Body();
-
-    void append( const char *data, size_t size );
-    void clear();
-
-    char *getData();
-    uint32_t getSize();
-
-private:
-    char *mData;
-    uint32_t mSize;
-};
-
-
 }
 
 }

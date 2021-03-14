@@ -118,7 +118,7 @@ const char *HttpRequest::getPath()
  * @brief Retrieves the body of the request
  * @return
  */
-Http::Body *HttpRequest::getBody()
+ByteArray *HttpRequest::getBody()
 {
     return &mBody;
 }

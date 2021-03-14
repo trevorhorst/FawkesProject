@@ -31,6 +31,7 @@ set( FAWKES_CORE_INCLUDE ${FAWKES_CORE_INCLUDE}
     ${FAWKES_CORE_INCLUDE_DIR}/singleton.h
     ${FAWKES_CORE_INCLUDE_DIR}/transport/client.h
     ${FAWKES_CORE_INCLUDE_DIR}/transport/server.h
+    ${FAWKES_CORE_INCLUDE_DIR}/types/byte_array.h
     )
 
 # Source files to include
@@ -49,6 +50,7 @@ set( FAWKES_CORE_SOURCE ${FAWKES_CORE_SOURCE}
     ${FAWKES_CORE_SOURCE_DIR}/network/unix/unix_server.cpp
     ${FAWKES_CORE_SOURCE_DIR}/transport/client.cpp
     ${FAWKES_CORE_SOURCE_DIR}/transport/server.cpp
+    ${FAWKES_CORE_SOURCE_DIR}/types/byte_array.cpp
     )
 
 # Library dependencies

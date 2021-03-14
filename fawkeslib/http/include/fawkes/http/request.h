@@ -12,6 +12,7 @@
 #include <microhttpd.h>
 
 #include "fawkes/core/common_types.h"
+#include "fawkes/core/types/byte_array.h"
 #include "fawkes/http/http.h"
 
 namespace Fawkes {
@@ -31,7 +32,7 @@ public:
     FILE* mFp;
     const char *mMethod;
     const char *mPath;
-    Http::Body mBody;
+    ByteArray mBody;
     char* mData;
     uint32_t mDataSize;
 
@@ -41,7 +42,7 @@ public:
     const char *getMethod();
     const char *getPath();
 
-    Http::Body *getBody();
+    ByteArray *getBody();
     HeaderMap *getHeaders();
 
     void addHeader( const char *key, const char *value );

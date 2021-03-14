@@ -263,7 +263,7 @@ void HttpServer::process( HttpRequest *request )
         char *response = nullptr;
         int32_t value = 0;
         if( mCommandCallback ) {
-            value = mCommandCallback( request->getBody()->getData(), &response );
+            value = mCommandCallback( request->getBody()->data(), &response );
 
             if( response == nullptr ) {
                 LOG_WARN( "Command response is NULL" );
