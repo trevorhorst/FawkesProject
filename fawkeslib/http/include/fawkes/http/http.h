@@ -4,6 +4,8 @@
 #include <stdint.h>
 #include <string.h>
 
+#include "fawkes/core/common_types.h"
+
 namespace Fawkes
 {
 
@@ -68,6 +70,8 @@ enum Status : int32_t {
     , GATEWAYTIMEOUT                 = 504
     , HTTPVERSIONNOTSUPPORTED        = 505
 };
+
+using HeaderMap = Types::CharHashMap< const char * >;
 
 }
 

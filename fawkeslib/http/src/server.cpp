@@ -23,9 +23,9 @@ int HttpServer::iterateHeaderValues(
     (void)kind;
 
     // Cast the existing headers map
-    HttpRequest *header = static_cast< HttpRequest* >( cls );
+    HttpRequest *request = static_cast< HttpRequest* >( cls );
     // Insert the new header
-    header->addHeader( key, value );
+    request->addHeader( key, value );
 
     return MHD_YES;
 }
@@ -40,7 +40,6 @@ int HttpServer::iteratePost(
         , const char *data
         , uint64_t off, size_t size )
 {
-    printf( "%s\n", __FUNCTION__ );
     // Unused
     (void)( kind );
     (void)( off );
@@ -178,6 +177,7 @@ int HttpServer::onRequest( MHD_Connection *connection
 
     // A NULL post processor means we will have to handle it ourselves
     if( r->mPostProcessor == nullptr ) {
+        LOG_TRACE( "Post processor is NULL" );
         // if( isVerbose() ) { printf( "PostProcessor is NULL\n" ); }
     }
 
@@ -268,12 +268,10 @@ void HttpServer::process( HttpRequest *request )
             if( response == nullptr ) {
                 LOG_WARN( "Command response is NULL" );
             } else {
-                rspStr = response;
-                rspData = rspStr;
-                rspType = type_text_html;
-                rspCode = MHD_HTTP_OK;
-
-                request->sendResponse( rspData, rspType, rspCode );
+                Http::Response rsp( request->mConnection );
+                rsp.applyStatus( Http::OK );
+                rsp.addHeader( MHD_HTTP_HEADER_CONTENT_TYPE, type_text_html );
+                rsp.send( response, strlen( response ) );
             }
 
             if( response ) {
@@ -357,4 +355,5 @@ int32_t HttpServer::applyCommandCallback( CommandCallback callback )
     mCommandCallback = callback;
     return error;
 }
+
 }

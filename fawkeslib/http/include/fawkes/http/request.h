@@ -12,6 +12,7 @@
 #include <microhttpd.h>
 
 #include "fawkes/core/common_types.h"
+#include "fawkes/core/logger/log.h"
 #include "fawkes/core/types/byte_array.h"
 #include "fawkes/http/http.h"
 

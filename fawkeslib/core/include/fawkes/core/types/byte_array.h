@@ -11,6 +11,7 @@ class ByteArray
 {
 public:
     ByteArray();
+    ByteArray( const char *data, size_t size );
     ~ByteArray();
 
     const char *data();
@@ -22,6 +23,7 @@ public:
 private:
     char *mData;
     size_t mSize;
+    size_t mCapacity;
 };
 
 }

@@ -6,8 +6,19 @@ namespace Fawkes
 ByteArray::ByteArray()
     : mData( nullptr )
     , mSize( 0 )
+    , mCapacity( 0 )
 {
 
+}
+
+ByteArray::ByteArray( const char *data, size_t size )
+    : mData( nullptr )
+    , mSize( size )
+    , mCapacity( size )
+{
+    mData = new char[ mSize + 1 ];
+    memcpy( static_cast< void* >( mData ), data, mSize );
+    mData[ mSize ] = '\0';
 }
 
 ByteArray::~ByteArray()

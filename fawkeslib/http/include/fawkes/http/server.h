@@ -7,6 +7,7 @@
 #include "fawkes/core/transport/server.h"
 
 #include "fawkes/http/request.h"
+#include "fawkes/http/response.h"
 
 namespace Fawkes
 {
