@@ -107,8 +107,6 @@ int32_t CommandHandler::process( const char *data , char **response )
         }
     }
 
-
-
     cJSON_AddBoolToObject( responseJson, COMMAND_NAME_SUCCESS, error ? false : true );
 
     // This will need to be cleaned up at the top level

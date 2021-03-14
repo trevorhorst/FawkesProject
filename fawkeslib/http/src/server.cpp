@@ -212,7 +212,7 @@ int HttpServer::onRequestBody(
     return MHD_YES;
 }
 
-void HttpServer::process(HttpRequest *request)
+void HttpServer::process( HttpRequest *request )
 {
     // printHeaders( request );
     // printBody( request );
@@ -263,38 +263,43 @@ void HttpServer::process(HttpRequest *request)
         char *response = nullptr;
         int32_t value = 0;
         if( mCommandCallback ) {
-            // A Command Handler exists so we can attempt to handle the POST
-
             value = mCommandCallback( request->getBody()->getData(), &response );
-            // mCommandHandler->handle( request->getBody()->getData(), response );
 
-            if( response ) {
+            if( response == nullptr ) {
+                LOG_WARN( "Command response is NULL" );
+            } else {
                 rspStr = response;
                 rspData = rspStr;
                 rspType = type_text_html;
                 rspCode = MHD_HTTP_OK;
+
+                request->sendResponse( rspData, rspType, rspCode );
             }
 
-            // cJSON_Delete( response );
-
+            if( response ) {
+                free( response );
+            }
         }
     }
-
-    // The last thing we will do is send the response
-    request->sendResponse( rspData, rspType, rspCode );
-
-    // if( rspStr ) {
-    //     // Free the post data
-    //     cJSON_free( rspStr );
-    // }
 }
 
+/**
+ * @brief HttpServer::HttpServer Constructor
+ */
 HttpServer::HttpServer()
     : mPort( 8080 )
     , mDaemon( nullptr )
 {
     applyCommandCallback( std::bind( &HttpServer::defaultHandler
                                      , this, std::placeholders::_1, std::placeholders::_2 ) );
+}
+
+/**
+ * @brief HttpServer::~HttpServer Destructor
+ */
+HttpServer::~HttpServer()
+{
+    stop();
 }
 
 int32_t HttpServer::defaultHandler( const char *data, char **response )
@@ -305,6 +310,15 @@ int32_t HttpServer::defaultHandler( const char *data, char **response )
     (void)response;
 
     return error;
+}
+
+void HttpServer::stop()
+{
+    if( mDaemon != nullptr ) {
+        LOG_INFO( "stopping server...\n" );
+        MHD_stop_daemon( mDaemon );
+        mDaemon = nullptr;
+    }
 }
 
 int32_t HttpServer::listen()

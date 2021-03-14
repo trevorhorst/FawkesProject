@@ -52,7 +52,7 @@ public:
 
 private:
     CURL *mCurl;
-    Data mData;
+    std::string mData;
     char mUrl[ 2048 ];
 
     curl_slist *mHeaders;

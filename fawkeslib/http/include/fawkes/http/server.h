@@ -29,6 +29,7 @@ public:
     using CommandCallback = std::function< int32_t ( const char *, char ** ) >;
 
     HttpServer();
+    virtual ~HttpServer();
 
     static int iterateHeaderValues(
             void *cls
@@ -77,6 +78,7 @@ public:
 
     void process( HttpRequest *request );
 
+    void stop();
     int32_t listen() override;
 
     int32_t applyCommandCallback( CommandCallback callback );

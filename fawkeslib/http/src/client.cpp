@@ -94,10 +94,10 @@ HttpClient::HttpClient( const char *address , uint16_t port )
     , mResponse( nullptr )
     , mResponseSize( 0 )
 {
+    curl_global_init( CURL_GLOBAL_ALL );
     mCurl = curl_easy_init();
 
     // Default cURL settings
-    applyUrl("localhost:8080");
     // applyUrl( "https://postman-echo.com/get?foo1=bar1&foo2=bar2" );
     // curl_easy_setopt(mCurl, CURLOPT_USERPWD, "user:pass");
     curl_easy_setopt( mCurl, CURLOPT_NOPROGRESS, 1L );
@@ -105,8 +105,8 @@ HttpClient::HttpClient( const char *address , uint16_t port )
     curl_easy_setopt( mCurl, CURLOPT_MAXREDIRS, 50L );
     curl_easy_setopt( mCurl, CURLOPT_TCP_KEEPALIVE, 1L );
 
+    applyUrl("localhost:8080");
     applyWriteFunction( &writeFunction );
-
 }
 
 /**
@@ -115,7 +115,6 @@ HttpClient::HttpClient( const char *address , uint16_t port )
 HttpClient::~HttpClient()
 {
     close();
-    mData.clear();
 }
 
 /**
@@ -126,6 +125,7 @@ void HttpClient::close()
     clearHeaders();
     curl_easy_cleanup( mCurl );
     mCurl = nullptr;
+    curl_global_cleanup();
 }
 
 /**
@@ -195,7 +195,7 @@ uint32_t HttpClient::applyWriteFunction( WriteFunction *writeFunction )
 size_t HttpClient::writeFunction(
         void *ptr, size_t size, size_t nmemb, std::string *data )
 {
-    data->append( (char*)ptr, size *nmemb );
+    data->append( static_cast< char* >( ptr ), size * nmemb );
     return size * nmemb;
 }
 
@@ -230,15 +230,12 @@ std::string HttpClient::get()
  */
 int32_t HttpClient::send( const char *str, char *response, int32_t responseLength )
 {
-    LOG_INFO("Sending: %s", str);
+    uint32_t error = Error::Type::NONE;
 
     // Create the headers
     struct curl_slist *headers = nullptr;
     headers = curl_slist_append( headers, "Content-Type: application/json" );
     headers = curl_slist_append( headers, "charset=utf-8" );
-
-    // Clear the response
-    mData.clear();
 
     // Set the options for cURL
     curl_easy_setopt( mCurl,           CURLOPT_URL, "http://127.0.0.1:8080" );
@@ -263,13 +260,16 @@ int32_t HttpClient::send( const char *str, char *response, int32_t responseLengt
                       curl_easy_strerror( res ) );
     } else {
         // Handle the response
-        strncpy(response, mData.raw(), responseLength);
+        strncpy(response, mData.c_str(), responseLength);
     }
+
+    // Clear the response
+    mData.clear();
 
     // Free the headers
     curl_slist_free_all( headers );
 
-    return Error::Type::NONE;
+    return error;
 }
 
 }
