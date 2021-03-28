@@ -80,7 +80,7 @@ public:
 
     void process( HttpRequest *request );
 
-    static void defaultAction( HttpRequest *request, Http::Response *response );
+    void defaultAction( HttpRequest *request, Http::Response *response );
 
     void stop();
     int32_t listen() override;

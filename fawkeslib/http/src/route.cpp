@@ -5,7 +5,7 @@ namespace Fawkes
 
 namespace Http {
 
-Route::Route( const char *path, const char *method, Action action )
+Route::Route( const char *path, const char *method,  Action action )
     : mPath{ "\0" }
     , mMethod( nullptr )
     , mAction( nullptr )

@@ -36,7 +36,7 @@ void Router::processRequest( HttpRequest &request )
     } else {
         Http::Response rsp( request.connection() );
         Http::Route::Action action = route->action();
-        (*action)( &request, &rsp );
+        action( &request, &rsp );
     }
 }
 

@@ -1,6 +1,9 @@
 #ifndef FAWKES_HTTP_ROUTE_H
 #define FAWKES_HTTP_ROUTE_H
 
+#include <functional>
+
+#include "fawkes/core/control/control.h"
 #include "fawkes/http/http.h"
 
 #include "fawkes/http/request.h"
@@ -15,7 +18,7 @@ namespace Http
 class Route
 {
 public:
-    using Action = void (*)(HttpRequest*, Http::Response*);
+    using Action = std::function< void (HttpRequest*, Http::Response*) >;
 
     Route( const char *path, const char *method, Action action );
 

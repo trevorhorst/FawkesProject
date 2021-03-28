@@ -296,7 +296,8 @@ HttpServer::HttpServer()
     applyCommandCallback( std::bind( &HttpServer::defaultHandler
                                      , this, std::placeholders::_1, std::placeholders::_2 ) );
 
-    mRouter.addRoute( "/", MHD_HTTP_METHOD_POST, defaultAction );
+    mRouter.addRoute( "/", MHD_HTTP_METHOD_POST
+                      , std::bind( &HttpServer::defaultAction, this, std::placeholders::_1, std::placeholders::_2 ) );
 }
 
 /**
