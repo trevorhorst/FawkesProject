@@ -58,7 +58,8 @@ int32_t serverCallback( const char *data )
 void testHttp()
 {
     Fawkes::Debug debug;
-    debug.setLevel( LOG_INFO );
+    // debug.setLevel( LOG_INFO );
+    debug.setLevel( LOG_TRACE );
 
     Fawkes::CommandHandler handler;
 

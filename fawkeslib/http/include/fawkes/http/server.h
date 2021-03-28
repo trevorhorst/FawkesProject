@@ -30,9 +30,6 @@ class HttpServer
 public:
     using CommandCallback = std::function< int32_t ( const char *, char ** ) >;
 
-    HttpServer();
-    virtual ~HttpServer();
-
     static int iterateHeaderValues(
             void *cls
             , enum MHD_ValueKind kind
@@ -66,16 +63,19 @@ public:
             , MHD_RequestTerminationCode *rtc
             );
 
-    int onRequest(MHD_Connection *connection
+    HttpServer();
+    virtual ~HttpServer();
+
+    int32_t onRequest(MHD_Connection *connection
             , const char *method
             , const char *path
             , void **request );
 
-    int onRequestBody(HttpRequest *request
+    int32_t onRequestBody(HttpRequest *request
             , const char *data
             , size_t *size );
 
-    int onRequestDone(
+    int32_t onRequestDone(
             HttpRequest *request );
 
     void process( HttpRequest *request );

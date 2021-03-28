@@ -10,34 +10,44 @@ Router::Router()
 {
 }
 
-void Router::addRoute(const char *path, const char *method, Route::Action action)
+void Router::addRoute( const char *path, const char *method, Route::Action action )
 {
     Route route( path, method, action );
     mRoutes.push_back( route );
 }
 
-void Router::processRequest( HttpRequest &request )
+bool Router::processRequest( HttpRequest &request, Http::Response &response )
 {
+    bool processed = false;
+
     const char *method = request.method();
     const char *path = request.path();
 
-    bool found = false;
+    bool pathOk = false;
+    bool methodOk = false;
     Route *route = nullptr;
 
-    for( auto it = mRoutes.begin(); (it != mRoutes.end()) && !found; it++ ) {
+    for( auto it = mRoutes.begin(); (it != mRoutes.end()) && !pathOk; it++ ) {
         if( strncmp( path, it->path(), HTTP_URL_LENGTH_MAX ) == 0 ) {
-            found = true;
+            if( strcmp( method, it->method() ) == 0 ) {
+                methodOk = true;
+            }
+            pathOk = true;
             route = &(*it);
         }
     }
 
-    if( !found ) {
-        LOG_INFO( "Route not found" );
+    if( !pathOk ) {
+        LOG_INFO( "Invalid Path" );
     } else {
-        Http::Response rsp( request.connection() );
-        Http::Route::Action action = route->action();
-        action( &request, &rsp );
+        if( methodOk ) {
+            Http::Route::Action action = route->action();
+            action( &request, &response );
+            processed = true;
+        }
     }
+
+    return processed;
 }
 
 }

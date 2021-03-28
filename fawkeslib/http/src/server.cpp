@@ -136,13 +136,19 @@ int32_t HttpServer::onConnection (
     return error;
 }
 
+/**
+ * @brief HttpServer::onResponseSent Cleans up a request once it has been handled
+ * @param cls
+ * @param connection Connection tied to the request object
+ * @param request Container holding information regarding the request
+ * @param rtc
+ */
 void HttpServer::onResponseSent(
         void *cls
         , MHD_Connection *connection
         , void **request
         , MHD_RequestTerminationCode *rtc)
 {
-    // printf( "Finished Request\n" );
     // Unused
     (void)cls;
     (void)connection;
@@ -154,7 +160,15 @@ void HttpServer::onResponseSent(
     delete r;
 }
 
-int HttpServer::onRequest( MHD_Connection *connection
+/**
+ * @brief HttpServer::onRequest Handles a new incoming request
+ * @param connection Connection associated with the request
+ * @param method Method associated with the request
+ * @param path Path associated with the request
+ * @param request Container to store a newly created request object
+ * @return int
+ */
+int32_t HttpServer::onRequest( MHD_Connection *connection
         , const char *method
         , const char *path
         , void **request )
@@ -182,7 +196,6 @@ int HttpServer::onRequest( MHD_Connection *connection
     // A NULL post processor means we will have to handle it ourselves
     if( processor == nullptr ) {
         LOG_TRACE( "Post processor is NULL" );
-        // if( isVerbose() ) { printf( "PostProcessor is NULL\n" ); }
     }
 
     // Fill out the rest of the request
@@ -196,15 +209,14 @@ int HttpServer::onRequest( MHD_Connection *connection
     return MHD_YES;
 }
 
-int HttpServer::onRequestDone( HttpRequest *request )
-{
-    // processRequest( request );
-    process( request );
-    return MHD_YES;
-}
-
-
-int HttpServer::onRequestBody(
+/**
+ * @brief HttpServer::onRequestBody Handles the body of the request data
+ * @param request Pointer to the request object
+ * @param data Incoming request body data
+ * @param size Size of the incoming request body data
+ * @return
+ */
+int32_t HttpServer::onRequestBody(
         HttpRequest *request
         , const char *data
         , size_t *size )
@@ -215,11 +227,20 @@ int HttpServer::onRequestBody(
     return MHD_YES;
 }
 
+/**
+ * @brief HttpServer::onRequestDone Handles a completed request
+ * @param request Pointer to the request object
+ * @return int
+ */
+int32_t HttpServer::onRequestDone( HttpRequest *request )
+{
+    process( request );
+    return MHD_YES;
+}
+
+
 void HttpServer::process( HttpRequest *request )
 {
-    // printHeaders( request );
-    // printBody( request );
-
     const char *rspData = response_bad_request;
     const char *rspType = type_text_html;
     int rspCode   = MHD_HTTP_BAD_REQUEST;
@@ -227,62 +248,17 @@ void HttpServer::process( HttpRequest *request )
     // In case we get a response string for the post
     char *rspStr = nullptr;
 
-    mRouter.processRequest( *request );
+    Http::Response response( request->connection() );
 
-    // if( strcmp( request->mMethod, MHD_HTTP_METHOD_GET ) == 0 ) {
-    //     // Handles a GET request
+    bool processed = false;
 
-    //     if( strcmp( request->getPath(), path_base ) == 0
-    //             || strcmp( request->getPath(), mIndexHtml ) == 0 ) {
-    //         // The index has been requested
-    //         rspData = mIndexHtml;
-    //         rspType = type_text_html;
-    //         rspCode = MHD_HTTP_OK;
+    processed = mRouter.processRequest( *request, response );
 
-    //     } else if( strcmp( request->getPath(), path_bundle_js ) == 0 ) {
-    //         // The main script file has been requested
-    //         rspData = mMainJs;
-    //         rspType = type_text_javascript;
-    //         rspCode = MHD_HTTP_OK;
-    //     }
+    if( processed ) {
 
-    // } else if ( strcmp( request->getMethod(), MHD_HTTP_METHOD_POST ) == 0 ) {
-    if ( strcmp( request->method(), MHD_HTTP_METHOD_POST ) == 0 ) {
-        // Handles a POST request
-
-        // if( request->mPostProcessor != nullptr ) {
-        //     // A POST processor exists
-        //     int ret = MHD_post_process( request->mPostProcessor
-        //                       , request->getBody()->getData()
-        //                       , request->getBody()->getSize() );
-
-        //     if( ret == MHD_YES ) {
-        //         rspData = response_success;
-        //     } else {
-        //         rspData = response_failed;
-        //     }
-
-        //     rspType = type_text_html;
-        //     rspCode = MHD_HTTP_OK;
-        // } else if( mCommandHandler != nullptr ){
-        char *response = nullptr;
-        int32_t value = 0;
-        if( mCommandCallback ) {
-            value = mCommandCallback( request->body()->data(), &response );
-
-            if( response == nullptr ) {
-                LOG_WARN( "Command response is NULL" );
-            } else {
-                Http::Response rsp( request->connection() );
-                rsp.applyStatus( Http::OK );
-                rsp.addHeader( MHD_HTTP_HEADER_CONTENT_TYPE, type_text_html );
-                rsp.send( response, strlen( response ) );
-            }
-
-            if( response ) {
-                free( response );
-            }
-        }
+    } else {
+        response.applyStatus( Http::INTERNALSERVERERROR );
+        response.send( "\0", 1 );
     }
 }
 
@@ -296,8 +272,8 @@ HttpServer::HttpServer()
     applyCommandCallback( std::bind( &HttpServer::defaultHandler
                                      , this, std::placeholders::_1, std::placeholders::_2 ) );
 
-    mRouter.addRoute( "/", MHD_HTTP_METHOD_POST
-                      , std::bind( &HttpServer::defaultAction, this, std::placeholders::_1, std::placeholders::_2 ) );
+   mRouter.addRoute( "/", MHD_HTTP_METHOD_POST
+                     , std::bind( &HttpServer::defaultAction, this, std::placeholders::_1, std::placeholders::_2 ) );
 }
 
 /**
@@ -365,7 +341,24 @@ int32_t HttpServer::applyCommandCallback( CommandCallback callback )
 
 void HttpServer::defaultAction( HttpRequest *request, Http::Response *response )
 {
-    LOG_INFO( "Default action handler" );
+    char *responseArray = nullptr;
+    int32_t value = 0;
+    if( mCommandCallback ) {
+        value = mCommandCallback( request->body()->data(), &responseArray );
+
+        if( responseArray == nullptr ) {
+            LOG_WARN( "Command response is NULL" );
+        } else {
+            // Http::Response rsp( request->connection() );
+            response->applyStatus( Http::OK );
+            response->addHeader( MHD_HTTP_HEADER_CONTENT_TYPE, type_text_html );
+            response->send( responseArray, strlen( responseArray ) );
+        }
+
+        if( responseArray ) {
+            free( responseArray );
+        }
+    }
 };
 
 }
