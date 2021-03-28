@@ -8,6 +8,7 @@
 
 #include "fawkes/http/request.h"
 #include "fawkes/http/response.h"
+#include "fawkes/http/router.h"
 
 namespace Fawkes
 {
@@ -79,6 +80,8 @@ public:
 
     void process( HttpRequest *request );
 
+    static void defaultAction( HttpRequest *request, Http::Response *response );
+
     void stop();
     int32_t listen() override;
 
@@ -88,6 +91,7 @@ private:
     uint16_t mPort;
     MHD_Daemon *mDaemon;
     CommandCallback mCommandCallback;
+    Http::Router mRouter;
 
     int32_t defaultHandler( const char *data, char **response );
 };

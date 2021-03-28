@@ -6,6 +6,9 @@ namespace Fawkes
 namespace Http
 {
 
+const char *get = "GET";
+const char *post = "POST";
+
 }
 
 }

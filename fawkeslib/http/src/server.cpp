@@ -94,6 +94,18 @@ int HttpServer::iteratePost(
 }
 
 
+/**
+ * @brief HttpServer::onConnection Handles any new connections received by the server
+ * @param cls
+ * @param connection Incoming connection
+ * @param url The requested URL of the incoming connection
+ * @param method The HTTP method used
+ * @param version
+ * @param upload_data
+ * @param upload_data_size
+ * @param con_cls
+ * @return
+ */
 int32_t HttpServer::onConnection (
         void *cls
         , MHD_Connection *connection
@@ -138,17 +150,6 @@ void HttpServer::onResponseSent(
 
     HttpRequest *r = static_cast< HttpRequest* >( *request );
 
-    if( r->mPostProcessor != nullptr ) {
-        MHD_destroy_post_processor( r->mPostProcessor );
-    }
-
-    if( r->mFp ) {
-        fclose( r->mFp );
-    }
-
-    // Delete the data contained within the request
-    delete[] r->mData;
-
     // Delete the request
     delete r;
 }
@@ -169,24 +170,26 @@ int HttpServer::onRequest( MHD_Connection *connection
                 , r );
 
     // Create a new post processor
-    r->mPostProcessor = MHD_create_post_processor(
+    /// @note Currently, libmicrohttp only supports the following:
+    ///  application/x-www-form-urlencoded
+    ///  multipart/form-data
+    MHD_PostProcessor *processor = MHD_create_post_processor(
                 connection
                 , 4096
                 , iteratePost
                 , static_cast< void* >( r ) );
 
     // A NULL post processor means we will have to handle it ourselves
-    if( r->mPostProcessor == nullptr ) {
+    if( processor == nullptr ) {
         LOG_TRACE( "Post processor is NULL" );
         // if( isVerbose() ) { printf( "PostProcessor is NULL\n" ); }
     }
 
     // Fill out the rest of the request
+    r->setPostProcessor( processor );
     r->setMethod( method );
     r->setPath( path );
     // r->mFp       = nullptr;
-    // r->mData     = nullptr;
-    // r->mDataSize = 0;
 
     *request = r;
 
@@ -224,6 +227,8 @@ void HttpServer::process( HttpRequest *request )
     // In case we get a response string for the post
     char *rspStr = nullptr;
 
+    mRouter.processRequest( *request );
+
     // if( strcmp( request->mMethod, MHD_HTTP_METHOD_GET ) == 0 ) {
     //     // Handles a GET request
 
@@ -242,7 +247,7 @@ void HttpServer::process( HttpRequest *request )
     //     }
 
     // } else if ( strcmp( request->getMethod(), MHD_HTTP_METHOD_POST ) == 0 ) {
-    if ( strcmp( request->getMethod(), MHD_HTTP_METHOD_POST ) == 0 ) {
+    if ( strcmp( request->method(), MHD_HTTP_METHOD_POST ) == 0 ) {
         // Handles a POST request
 
         // if( request->mPostProcessor != nullptr ) {
@@ -263,12 +268,12 @@ void HttpServer::process( HttpRequest *request )
         char *response = nullptr;
         int32_t value = 0;
         if( mCommandCallback ) {
-            value = mCommandCallback( request->getBody()->data(), &response );
+            value = mCommandCallback( request->body()->data(), &response );
 
             if( response == nullptr ) {
                 LOG_WARN( "Command response is NULL" );
             } else {
-                Http::Response rsp( request->mConnection );
+                Http::Response rsp( request->connection() );
                 rsp.applyStatus( Http::OK );
                 rsp.addHeader( MHD_HTTP_HEADER_CONTENT_TYPE, type_text_html );
                 rsp.send( response, strlen( response ) );
@@ -290,6 +295,8 @@ HttpServer::HttpServer()
 {
     applyCommandCallback( std::bind( &HttpServer::defaultHandler
                                      , this, std::placeholders::_1, std::placeholders::_2 ) );
+
+    mRouter.addRoute( "/", MHD_HTTP_METHOD_POST, defaultAction );
 }
 
 /**
@@ -330,8 +337,7 @@ int32_t HttpServer::listen()
     mDaemon = MHD_start_daemon(
                 flags
                 , mPort
-                , nullptr
-                , nullptr
+                , nullptr, nullptr
                 , &onConnection, this
                 , MHD_OPTION_NOTIFY_COMPLETED, &onResponseSent, this
                 // , MHD_OPTION_SOCK_ADDR, &socket
@@ -355,5 +361,10 @@ int32_t HttpServer::applyCommandCallback( CommandCallback callback )
     mCommandCallback = callback;
     return error;
 }
+
+void HttpServer::defaultAction( HttpRequest *request, Http::Response *response )
+{
+    LOG_INFO( "Default action handler" );
+};
 
 }

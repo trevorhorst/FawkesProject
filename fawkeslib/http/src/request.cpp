@@ -15,8 +15,6 @@ HttpRequest::HttpRequest( MHD_Connection *connection )
   , mFp( nullptr )
   , mMethod( nullptr )
   , mPath( nullptr )
-  , mData( nullptr )
-  , mDataSize( 0 )
 {
 }
 
@@ -25,6 +23,14 @@ HttpRequest::HttpRequest( MHD_Connection *connection )
  */
 HttpRequest::~HttpRequest()
 {
+    if( mPostProcessor ) {
+        MHD_destroy_post_processor( mPostProcessor );
+        mPostProcessor = nullptr;
+    }
+
+    if( mFp ) {
+        fclose( mFp );
+    }
 }
 
 /**
@@ -78,6 +84,11 @@ int HttpRequest::sendResponse( const char *responseData, const char *responseTyp
     return ret;
 }
 
+void HttpRequest::setPostProcessor( MHD_PostProcessor *processor )
+{
+    mPostProcessor = processor;
+}
+
 /**
  * @brief Sets the method type of the request
  * @param method Desired method type
@@ -100,7 +111,7 @@ void HttpRequest::setPath( const char *path )
  * @brief Retrieves the method type of the request
  * @return Character array representation of the method type
  */
-const char *HttpRequest::getMethod()
+const char *HttpRequest::method()
 {
     return mMethod;
 }
@@ -109,7 +120,7 @@ const char *HttpRequest::getMethod()
  * @brief Retrieves the path type of the request
  * @return Character array representation of the path
  */
-const char *HttpRequest::getPath()
+const char *HttpRequest::path()
 {
     return mPath;
 }
@@ -118,7 +129,7 @@ const char *HttpRequest::getPath()
  * @brief Retrieves the body of the request
  * @return
  */
-ByteArray *HttpRequest::getBody()
+ByteArray *HttpRequest::body()
 {
     return &mBody;
 }
@@ -127,9 +138,19 @@ ByteArray *HttpRequest::getBody()
  * @brief Retrieves the headers of the request
  * @return Pointer to the header map of the request
  */
-HttpRequest::HeaderMap *HttpRequest::getHeaders()
+const HttpRequest::HeaderMap *HttpRequest::headers()
 {
     return &mHeaders;
+}
+
+MHD_Connection *HttpRequest::connection()
+{
+    return mConnection;
+}
+
+MHD_PostProcessor *HttpRequest::postProcessor()
+{
+    return mPostProcessor;
 }
 
 }

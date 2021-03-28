@@ -16,6 +16,7 @@ set( FAWKES_HTTP_INCLUDE ${FAWKES_HTTP_INCLUDE}
     ${FAWKES_HTTP_INCLUDE_DIR}/request.h
     ${FAWKES_HTTP_INCLUDE_DIR}/response.h
     ${FAWKES_HTTP_INCLUDE_DIR}/route.h
+    ${FAWKES_HTTP_INCLUDE_DIR}/router.h
     ${FAWKES_HTTP_INCLUDE_DIR}/server.h
     )
 
@@ -25,6 +26,7 @@ set( FAWKES_HTTP_SOURCE ${FAWKES_HTTP_SOURCE}
     ${FAWKES_HTTP_SOURCE_DIR}/request.cpp
     ${FAWKES_HTTP_SOURCE_DIR}/response.cpp
     ${FAWKES_HTTP_SOURCE_DIR}/route.cpp
+    ${FAWKES_HTTP_SOURCE_DIR}/router.cpp
     ${FAWKES_HTTP_SOURCE_DIR}/server.cpp
     )
 

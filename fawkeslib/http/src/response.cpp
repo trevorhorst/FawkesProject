@@ -6,6 +6,10 @@ namespace Fawkes
 namespace Http
 {
 
+/**
+ * @brief Response::Response Response object
+ * @param connection
+ */
 Response::Response( MHD_Connection *connection )
     : mSent( false )
     , mStatus( Http::Status::BADREQUEST )

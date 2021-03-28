@@ -27,24 +27,18 @@ public:
     explicit HttpRequest( MHD_Connection *connection );
     ~HttpRequest();
 
-    MHD_Connection *mConnection;
-    MHD_PostProcessor *mPostProcessor;
-    HeaderMap mHeaders;
     FILE* mFp;
-    const char *mMethod;
-    const char *mPath;
-    ByteArray mBody;
-    char* mData;
-    uint32_t mDataSize;
 
+    void setPostProcessor( MHD_PostProcessor *processor );
     void setMethod( const char *method );
     void setPath( const char *path );
 
-    const char *getMethod();
-    const char *getPath();
-
-    ByteArray *getBody();
-    HeaderMap *getHeaders();
+    const char *method();
+    const char *path();
+    ByteArray *body();
+    const HeaderMap *headers();
+    MHD_Connection *connection();
+    MHD_PostProcessor *postProcessor();
 
     void addHeader( const char *key, const char *value );
     void appendData( const char *data, size_t size );
@@ -54,6 +48,14 @@ public:
                       , int statusCode );
 
 private:
+    MHD_Connection *mConnection;
+    MHD_PostProcessor *mPostProcessor;
+    const char *mMethod;
+    const char *mPath;
+
+    HeaderMap mHeaders;
+    ByteArray mBody;
+
     static const uint32_t header_key_size_max;
     static const uint32_t header_value_size_max;
 };

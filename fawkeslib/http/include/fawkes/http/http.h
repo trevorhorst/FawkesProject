@@ -12,6 +12,8 @@ namespace Fawkes
 namespace Http
 {
 
+#define HTTP_URL_LENGTH_MAX    2048
+
 enum Method : int32_t {
     GET         = 0
     , POST      = 1
@@ -72,6 +74,9 @@ enum Status : int32_t {
 };
 
 using HeaderMap = Types::CharHashMap< const char * >;
+
+extern const char *get;
+extern const char *post;
 
 }
 

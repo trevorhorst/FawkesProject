@@ -26,6 +26,7 @@
 
 #include "fawkes/http/server.h"
 #include "fawkes/http/client.h"
+#include "fawkes/http/router.h"
 
 enum OptionIndex {
     UNKNOWN  = 0
