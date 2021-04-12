@@ -18,7 +18,7 @@ public:
     Router();
 
     void addRoute( const char *path, const char * method, Route::Action action );
-    bool processRequest( HttpRequest &request, Http::Response &response );
+    bool processRequest( Http::Request &request, Http::Response &response );
 
 private:
     std::vector< Route > mRoutes;

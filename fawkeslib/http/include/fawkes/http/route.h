@@ -18,7 +18,7 @@ namespace Http
 class Route
 {
 public:
-    using Action = std::function< void (HttpRequest*, Http::Response*) >;
+    using Action = std::function< void (Http::Request*, Http::Response*) >;
 
     Route( const char *path, const char *method, Action action );
 

@@ -16,7 +16,7 @@ void Router::addRoute( const char *path, const char *method, Route::Action actio
     mRoutes.push_back( route );
 }
 
-bool Router::processRequest( HttpRequest &request, Http::Response &response )
+bool Router::processRequest( Http::Request &request, Http::Response &response )
 {
     bool processed = false;
 

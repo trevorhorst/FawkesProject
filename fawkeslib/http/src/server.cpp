@@ -23,7 +23,7 @@ int HttpServer::iterateHeaderValues(
     (void)kind;
 
     // Cast the existing headers map
-    HttpRequest *request = static_cast< HttpRequest* >( cls );
+    Http::Request *request = static_cast< Http::Request* >( cls );
     // Insert the new header
     request->addHeader( key, value );
 
@@ -44,7 +44,7 @@ int HttpServer::iteratePost(
     (void)( kind );
     (void)( off );
 
-    HttpRequest *r = static_cast< HttpRequest* >( coninfo_cls );
+    Http::Request *r = static_cast< Http::Request* >( coninfo_cls );
 
     if( key != nullptr ) {
         printf( "Key: %s\n", key );
@@ -120,7 +120,7 @@ int32_t HttpServer::onConnection (
     ( void )( version );
 
     HttpServer *server = static_cast< HttpServer* >( cls );
-    HttpRequest *request = static_cast< HttpRequest* >( *con_cls );
+    Http::Request *request = static_cast< Http::Request* >( *con_cls );
 
     if( request == nullptr ) {
         // Handles a new request
@@ -154,7 +154,7 @@ void HttpServer::onResponseSent(
     (void)connection;
     (void)rtc;
 
-    HttpRequest *r = static_cast< HttpRequest* >( *request );
+    Http::Request *r = static_cast< Http::Request* >( *request );
 
     // Delete the request
     delete r;
@@ -174,7 +174,7 @@ int32_t HttpServer::onRequest( MHD_Connection *connection
         , void **request )
 {
     // Create a new requst to handle the connection
-    HttpRequest *r = new HttpRequest( connection );
+    Http::Request *r = new Http::Request( connection );
 
     // Parse the header value
     MHD_get_connection_values(
@@ -183,23 +183,20 @@ int32_t HttpServer::onRequest( MHD_Connection *connection
                 , &iterateHeaderValues
                 , r );
 
-    // Create a new post processor
-    /// @note Currently, libmicrohttp only supports the following:
-    ///  application/x-www-form-urlencoded
-    ///  multipart/form-data
-    MHD_PostProcessor *processor = MHD_create_post_processor(
-                connection
-                , 4096
-                , iteratePost
-                , static_cast< void* >( r ) );
+    // // Create a new post processor
+    // MHD_PostProcessor *processor = MHD_create_post_processor(
+    //             connection
+    //             , 4096
+    //             , iteratePost
+    //             , static_cast< void* >( r ) );
 
-    // A NULL post processor means we will have to handle it ourselves
-    if( processor == nullptr ) {
-        LOG_TRACE( "Post processor is NULL" );
-    }
+    // // A NULL post processor means we will have to handle it ourselves
+    // if( processor == nullptr ) {
+    //     LOG_TRACE( "Post processor is NULL" );
+    // }
 
     // Fill out the rest of the request
-    r->setPostProcessor( processor );
+    // r->setPostProcessor( processor );
     r->setMethod( method );
     r->setPath( path );
     // r->mFp       = nullptr;
@@ -217,7 +214,7 @@ int32_t HttpServer::onRequest( MHD_Connection *connection
  * @return
  */
 int32_t HttpServer::onRequestBody(
-        HttpRequest *request
+        Http::Request *request
         , const char *data
         , size_t *size )
 {
@@ -232,14 +229,14 @@ int32_t HttpServer::onRequestBody(
  * @param request Pointer to the request object
  * @return int
  */
-int32_t HttpServer::onRequestDone( HttpRequest *request )
+int32_t HttpServer::onRequestDone( Http::Request *request )
 {
     process( request );
     return MHD_YES;
 }
 
 
-void HttpServer::process( HttpRequest *request )
+void HttpServer::process( Http::Request *request )
 {
     const char *rspData = response_bad_request;
     const char *rspType = type_text_html;
@@ -339,7 +336,7 @@ int32_t HttpServer::applyCommandCallback( CommandCallback callback )
     return error;
 }
 
-void HttpServer::defaultAction( HttpRequest *request, Http::Response *response )
+void HttpServer::defaultAction( Http::Request *request, Http::Response *response )
 {
     char *responseArray = nullptr;
     int32_t value = 0;

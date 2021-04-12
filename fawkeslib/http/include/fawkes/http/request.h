@@ -2,7 +2,7 @@
  * @file request.h
  * @author Trevor Horst
  * @copyright
- * @brief HttpRequest class declaration. Container for all information related to
+ * @brief Request class declaration. Container for all information related to
  * a request. This class should not actually create any data.
  * ****************************************************************************/
 
@@ -18,14 +18,26 @@
 
 namespace Fawkes {
 
-class HttpRequest
+namespace Http {
+
+class Request
 {
 public:
 
     using HeaderMap = Types::CharHashMap< const char* >;
 
-    explicit HttpRequest( MHD_Connection *connection );
-    ~HttpRequest();
+    static int32_t iteratePost(
+            void *coninfo_cls
+            , MHD_ValueKind kind
+            , const char *key
+            , const char *filename
+            , const char *content_type
+            , const char *transfer_encoding
+            , const char *data
+            , uint64_t off, size_t size );
+
+    explicit Request( MHD_Connection *connection );
+    ~Request();
 
     FILE* mFp;
 
@@ -59,6 +71,8 @@ private:
     static const uint32_t header_key_size_max;
     static const uint32_t header_value_size_max;
 };
+
+}
 
 }
 

@@ -2,26 +2,89 @@
 
 namespace Fawkes {
 
-const uint32_t HttpRequest::header_key_size_max   = 128;
-const uint32_t HttpRequest::header_value_size_max = 1024;
+namespace Http {
+
+const uint32_t Request::header_key_size_max   = 128;
+const uint32_t Request::header_value_size_max = 1024;
+
+int32_t Request::iteratePost(
+        void *coninfo
+        , MHD_ValueKind kind
+        , const char *key
+        , const char *filename
+        , const char *contentType
+        , const char *transferEncoding
+        , const char *data
+        , uint64_t off, size_t size)
+{
+    // Unused
+    (void)( kind );
+    (void)( off );
+
+    Request *request = static_cast< Request* >( coninfo );
+
+    if( key != nullptr ) {
+        LOG_INFO( "Key: %s", key );
+    }
+
+    if( contentType != nullptr ) {
+        LOG_INFO( "Content-Type: %s", contentType );
+    }
+
+    if( transferEncoding != nullptr ) {
+        LOG_INFO( "Transfer-Encoding: %s", transferEncoding );
+    }
+
+    if( filename == nullptr ) {
+        LOG_ERROR( "Filename is invalid, not sure what to do in this case" );
+    } else {
+        if( request->mFp == nullptr ) {
+            request->mFp = fopen( filename, "wb" );
+            if( !request->mFp ) {
+                return MHD_NO;
+            }
+        }
+    }
+
+    if( size > 0 ) {
+        if( !fwrite( data, size, sizeof( char ), request->mFp ) ) {
+            return MHD_NO;
+        }
+    }
+
+    return MHD_YES;
+}
 
 /**
  * @brief Constructor
  * @param connection Connections associated with the request
  */
-HttpRequest::HttpRequest( MHD_Connection *connection )
+Request::Request( MHD_Connection *connection )
   : mConnection( connection )
   , mPostProcessor( nullptr )
   , mFp( nullptr )
   , mMethod( nullptr )
   , mPath( nullptr )
 {
+    /// @note Currently, libmicrohttp only supports the following:
+    ///  application/x-www-form-urlencoded
+    ///  multipart/form-data
+    mPostProcessor = MHD_create_post_processor(
+                connection
+                , 4096
+                , iteratePost
+                , static_cast< void* >( this )
+                );
+
+    if( mPostProcessor == nullptr ) {
+        LOG_TRACE( "Post processor is NULL" );
+    }
 }
 
 /**
  * @brief Destructor
  */
-HttpRequest::~HttpRequest()
+Request::~Request()
 {
     if( mPostProcessor ) {
         MHD_destroy_post_processor( mPostProcessor );
@@ -38,7 +101,7 @@ HttpRequest::~HttpRequest()
  * @param key Header key
  * @param value Header value
  */
-void HttpRequest::addHeader( const char *key, const char *value )
+void Request::addHeader( const char *key, const char *value )
 {
     mHeaders[ key ] = value;
 }
@@ -48,7 +111,7 @@ void HttpRequest::addHeader( const char *key, const char *value )
  * @param data Data to append
  * @param size Size of the data to append
  */
-void HttpRequest::appendData( const char *data, size_t size )
+void Request::appendData( const char *data, size_t size )
 {
     mBody.append( data, size );
 }
@@ -60,7 +123,7 @@ void HttpRequest::appendData( const char *data, size_t size )
  * @param statusCode Status code in relation to the response
  * @return Integer indicating the success of the operation
  */
-int HttpRequest::sendResponse( const char *responseData, const char *responseType
+int Request::sendResponse( const char *responseData, const char *responseType
                            , int statusCode )
 {
     int ret;
@@ -84,7 +147,7 @@ int HttpRequest::sendResponse( const char *responseData, const char *responseTyp
     return ret;
 }
 
-void HttpRequest::setPostProcessor( MHD_PostProcessor *processor )
+void Request::setPostProcessor( MHD_PostProcessor *processor )
 {
     mPostProcessor = processor;
 }
@@ -93,7 +156,7 @@ void HttpRequest::setPostProcessor( MHD_PostProcessor *processor )
  * @brief Sets the method type of the request
  * @param method Desired method type
  */
-void HttpRequest::setMethod( const char *method )
+void Request::setMethod( const char *method )
 {
     mMethod = method;
 }
@@ -102,7 +165,7 @@ void HttpRequest::setMethod( const char *method )
  * @brief Sets the path of the request
  * @param path Desired path type
  */
-void HttpRequest::setPath( const char *path )
+void Request::setPath( const char *path )
 {
     mPath = path;
 }
@@ -111,7 +174,7 @@ void HttpRequest::setPath( const char *path )
  * @brief Retrieves the method type of the request
  * @return Character array representation of the method type
  */
-const char *HttpRequest::method()
+const char *Request::method()
 {
     return mMethod;
 }
@@ -120,7 +183,7 @@ const char *HttpRequest::method()
  * @brief Retrieves the path type of the request
  * @return Character array representation of the path
  */
-const char *HttpRequest::path()
+const char *Request::path()
 {
     return mPath;
 }
@@ -129,7 +192,7 @@ const char *HttpRequest::path()
  * @brief Retrieves the body of the request
  * @return
  */
-ByteArray *HttpRequest::body()
+ByteArray *Request::body()
 {
     return &mBody;
 }
@@ -138,19 +201,21 @@ ByteArray *HttpRequest::body()
  * @brief Retrieves the headers of the request
  * @return Pointer to the header map of the request
  */
-const HttpRequest::HeaderMap *HttpRequest::headers()
+const Request::HeaderMap *Request::headers()
 {
     return &mHeaders;
 }
 
-MHD_Connection *HttpRequest::connection()
+MHD_Connection *Request::connection()
 {
     return mConnection;
 }
 
-MHD_PostProcessor *HttpRequest::postProcessor()
+MHD_PostProcessor *Request::postProcessor()
 {
     return mPostProcessor;
+}
+
 }
 
 }

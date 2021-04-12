@@ -71,16 +71,16 @@ public:
             , const char *path
             , void **request );
 
-    int32_t onRequestBody(HttpRequest *request
+    int32_t onRequestBody(Http::Request *request
             , const char *data
             , size_t *size );
 
     int32_t onRequestDone(
-            HttpRequest *request );
+            Http::Request *request );
 
-    void process( HttpRequest *request );
+    void process( Http::Request *request );
 
-    void defaultAction( HttpRequest *request, Http::Response *response );
+    void defaultAction( Http::Request *request, Http::Response *response );
 
     void stop();
     int32_t listen() override;
