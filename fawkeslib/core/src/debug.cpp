@@ -3,6 +3,9 @@
 namespace Fawkes
 {
 
+/**
+ * @brief Constructor
+ */
 Debug::Debug()
     : ControlTemplate< Debug >()
 {
