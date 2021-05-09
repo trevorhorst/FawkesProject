@@ -266,11 +266,11 @@ HttpServer::HttpServer()
     : mPort( 8080 )
     , mDaemon( nullptr )
 {
-    applyCommandCallback( std::bind( &HttpServer::defaultHandler
-                                     , this, std::placeholders::_1, std::placeholders::_2 ) );
+    // applyCommandCallback( std::bind( &HttpServer::defaultHandler
+    //                                  , this, std::placeholders::_1, std::placeholders::_2 ) );
 
-   mRouter.addRoute( "/", MHD_HTTP_METHOD_POST
-                     , std::bind( &HttpServer::defaultAction, this, std::placeholders::_1, std::placeholders::_2 ) );
+    // mRouter.addRoute( "/", MHD_HTTP_METHOD_POST
+    //                   , std::bind( &HttpServer::defaultAction, this, std::placeholders::_1, std::placeholders::_2 ) );
 }
 
 /**
@@ -333,6 +333,13 @@ int32_t HttpServer::applyCommandCallback( CommandCallback callback )
 {
     int32_t error = Error::Type::NONE;
     mCommandCallback = callback;
+    return error;
+}
+
+int32_t HttpServer::applyRouter( Http::Router &router )
+{
+    int32_t error = Error::Type::NONE;
+    mRouter = router;
     return error;
 }
 

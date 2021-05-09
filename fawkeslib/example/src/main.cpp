@@ -28,6 +28,8 @@
 #include "fawkes/http/client.h"
 #include "fawkes/http/router.h"
 
+#include "example/resources/resources.h"
+
 enum OptionIndex {
     UNKNOWN  = 0
     , HELP
@@ -55,6 +57,23 @@ int32_t serverCallback( const char *data )
     return 0;
 }
 
+void index( Fawkes::Http::Request *request, Fawkes::Http::Response *response )
+{
+    response->applyStatus( Fawkes::Http::OK );
+    response->addHeader( MHD_HTTP_HEADER_CONTENT_TYPE, Fawkes::HttpServer::type_text_html );
+    response->send( Resources::index_html, Resources::index_html_size );
+    LOG_INFO( "Index page sent" );
+}
+
+void bundle( Fawkes::Http::Request *request, Fawkes::Http::Response *response )
+{
+    response->applyStatus( Fawkes::Http::OK );
+    response->addHeader( MHD_HTTP_HEADER_CONTENT_TYPE, Fawkes::HttpServer::type_text_html );
+    response->send( Resources::bundle_js, Resources::bundle_js_size );
+    LOG_INFO( "Index page sent" );
+}
+
+
 void testHttp()
 {
     Fawkes::Debug debug;
@@ -62,7 +81,18 @@ void testHttp()
 
     Fawkes::CommandHandler handler;
 
+    Fawkes::Http::Router router;
     Fawkes::HttpServer server;
+    auto idx = std::bind( (void(*)(Fawkes::Http::Request*, Fawkes::Http::Response*))&index
+                          , std::placeholders::_1, std::placeholders::_2);
+    router.addRoute( "/", MHD_HTTP_METHOD_GET, idx );
+    router.addRoute( "/index.html", MHD_HTTP_METHOD_GET, idx );
+    auto bdl = std::bind( (void(*)(Fawkes::Http::Request*, Fawkes::Http::Response*))&bundle
+                          , std::placeholders::_1, std::placeholders::_2);
+    router.addRoute( "/bundle.js", MHD_HTTP_METHOD_GET, bdl );
+    auto api = std::bind( &Fawkes::HttpServer::defaultAction, &server, std::placeholders::_1, std::placeholders::_2 );
+    router.addRoute( "/api", MHD_HTTP_METHOD_POST, api );
+    server.applyRouter( router );
     server.applyCommandCallback( std::bind( &Fawkes::CommandHandler::process
                                             , &handler
                                             , std::placeholders::_1
@@ -138,6 +168,11 @@ void testConsole()
     delete serverThread;
 }
 
+void testResources()
+{
+    LOG_INFO( "%s", Resources::index_html );
+}
+
 int main( int argc, char *argv[] )
 {
     argc -= ( argc > 0 );
@@ -163,6 +198,7 @@ int main( int argc, char *argv[] )
     // testUnixServer();
     // testConsole();
     testHttp();
+    // testResources();
 
     return 0;
 }

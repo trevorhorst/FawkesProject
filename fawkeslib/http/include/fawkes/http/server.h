@@ -16,6 +16,7 @@ namespace Fawkes
 class HttpServer
         : public Server
 {
+public:
     static const char *response_success;
     static const char *response_failed;
     static const char *response_bad_request;
@@ -27,7 +28,6 @@ class HttpServer
     static const char *path_index_html;
     static const char *path_bundle_js;
 
-public:
     using CommandCallback = std::function< int32_t ( const char *, char ** ) >;
 
     static int iterateHeaderValues(
@@ -86,14 +86,15 @@ public:
     int32_t listen() override;
 
     int32_t applyCommandCallback( CommandCallback callback );
+    int32_t applyRouter( Http::Router &router );
+
+    int32_t defaultHandler( const char *data, char **response );
 
 private:
     uint16_t mPort;
     MHD_Daemon *mDaemon;
     CommandCallback mCommandCallback;
     Http::Router mRouter;
-
-    int32_t defaultHandler( const char *data, char **response );
 };
 
 }
