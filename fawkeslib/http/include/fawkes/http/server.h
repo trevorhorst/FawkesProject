@@ -13,8 +13,10 @@
 namespace Fawkes
 {
 
-class HttpServer
-        : public Server
+namespace Http {
+
+class Server
+        : public ServerTemplate
 {
 public:
     static const char *response_success;
@@ -63,8 +65,8 @@ public:
             , MHD_RequestTerminationCode *rtc
             );
 
-    HttpServer();
-    virtual ~HttpServer();
+    Server();
+    virtual ~Server();
 
     int32_t onRequest(MHD_Connection *connection
             , const char *method
@@ -96,6 +98,8 @@ private:
     CommandCallback mCommandCallback;
     Http::Router mRouter;
 };
+
+}
 
 }
 

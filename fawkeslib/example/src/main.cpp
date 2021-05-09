@@ -60,7 +60,7 @@ int32_t serverCallback( const char *data )
 void index( Fawkes::Http::Request *request, Fawkes::Http::Response *response )
 {
     response->applyStatus( Fawkes::Http::OK );
-    response->addHeader( MHD_HTTP_HEADER_CONTENT_TYPE, Fawkes::HttpServer::type_text_html );
+    response->addHeader( MHD_HTTP_HEADER_CONTENT_TYPE, Fawkes::Http::Server::type_text_html );
     response->send( Resources::index_html, Resources::index_html_size );
     LOG_INFO( "Index page sent" );
 }
@@ -68,7 +68,7 @@ void index( Fawkes::Http::Request *request, Fawkes::Http::Response *response )
 void bundle( Fawkes::Http::Request *request, Fawkes::Http::Response *response )
 {
     response->applyStatus( Fawkes::Http::OK );
-    response->addHeader( MHD_HTTP_HEADER_CONTENT_TYPE, Fawkes::HttpServer::type_text_html );
+    response->addHeader( MHD_HTTP_HEADER_CONTENT_TYPE, Fawkes::Http::Server::type_text_html );
     response->send( Resources::bundle_js, Resources::bundle_js_size );
     LOG_INFO( "Index page sent" );
 }
@@ -82,7 +82,7 @@ void testHttp()
     Fawkes::CommandHandler handler;
 
     Fawkes::Http::Router router;
-    Fawkes::HttpServer server;
+    Fawkes::Http::Server server;
     auto idx = std::bind( (void(*)(Fawkes::Http::Request*, Fawkes::Http::Response*))&index
                           , std::placeholders::_1, std::placeholders::_2);
     router.addRoute( "/", MHD_HTTP_METHOD_GET, idx );
@@ -90,7 +90,7 @@ void testHttp()
     auto bdl = std::bind( (void(*)(Fawkes::Http::Request*, Fawkes::Http::Response*))&bundle
                           , std::placeholders::_1, std::placeholders::_2);
     router.addRoute( "/bundle.js", MHD_HTTP_METHOD_GET, bdl );
-    auto api = std::bind( &Fawkes::HttpServer::defaultAction, &server, std::placeholders::_1, std::placeholders::_2 );
+    auto api = std::bind( &Fawkes::Http::Server::defaultAction, &server, std::placeholders::_1, std::placeholders::_2 );
     router.addRoute( "/api", MHD_HTTP_METHOD_POST, api );
     server.applyRouter( router );
     server.applyCommandCallback( std::bind( &Fawkes::CommandHandler::process

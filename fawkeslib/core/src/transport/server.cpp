@@ -6,7 +6,7 @@ namespace Fawkes
 /**
  * @brief Destructor
  */
-Server::~Server()
+ServerTemplate::~ServerTemplate()
 {
 
 }

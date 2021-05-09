@@ -6,11 +6,11 @@
 namespace Fawkes
 {
 
-class Server
-        : public ControlTemplate< Server >
+class ServerTemplate
+        : public ControlTemplate< ServerTemplate >
 {
 public:
-    virtual ~Server();
+    virtual ~ServerTemplate();
     virtual int32_t listen() = 0;
 };
 

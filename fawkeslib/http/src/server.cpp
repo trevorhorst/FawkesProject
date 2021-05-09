@@ -2,18 +2,20 @@
 
 namespace Fawkes {
 
-const char *HttpServer::response_success     = "Success";
-const char *HttpServer::response_failed      = "Failed";
-const char *HttpServer::response_bad_request = "Bad Request";
+namespace Http {
 
-const char *HttpServer::type_text_html       = "text/html";
-const char *HttpServer::type_text_javascript = "text/javascript";
+const char *Server::response_success     = "Success";
+const char *Server::response_failed      = "Failed";
+const char *Server::response_bad_request = "Bad Request";
 
-const char *HttpServer::path_base            = "/";
-const char *HttpServer::path_index_html      = "/index.html";
-const char *HttpServer::path_bundle_js         = "/bundle.js";
+const char *Server::type_text_html       = "text/html";
+const char *Server::type_text_javascript = "text/javascript";
 
-int HttpServer::iterateHeaderValues(
+const char *Server::path_base            = "/";
+const char *Server::path_index_html      = "/index.html";
+const char *Server::path_bundle_js         = "/bundle.js";
+
+int Server::iterateHeaderValues(
         void *cls
         , MHD_ValueKind kind
         , const char *key
@@ -30,7 +32,7 @@ int HttpServer::iterateHeaderValues(
     return MHD_YES;
 }
 
-int HttpServer::iteratePost(
+int Server::iteratePost(
         void *coninfo_cls
         , MHD_ValueKind kind
         , const char *key
@@ -95,7 +97,7 @@ int HttpServer::iteratePost(
 
 
 /**
- * @brief HttpServer::onConnection Handles any new connections received by the server
+ * @brief Server::onConnection Handles any new connections received by the server
  * @param cls
  * @param connection Incoming connection
  * @param url The requested URL of the incoming connection
@@ -106,7 +108,7 @@ int HttpServer::iteratePost(
  * @param con_cls
  * @return
  */
-int32_t HttpServer::onConnection (
+int32_t Server::onConnection (
         void *cls
         , MHD_Connection *connection
         , const char *url, const char *method
@@ -119,7 +121,7 @@ int32_t HttpServer::onConnection (
     // Unused
     ( void )( version );
 
-    HttpServer *server = static_cast< HttpServer* >( cls );
+    Server *server = static_cast< Server* >( cls );
     Http::Request *request = static_cast< Http::Request* >( *con_cls );
 
     if( request == nullptr ) {
@@ -137,13 +139,13 @@ int32_t HttpServer::onConnection (
 }
 
 /**
- * @brief HttpServer::onResponseSent Cleans up a request once it has been handled
+ * @brief Server::onResponseSent Cleans up a request once it has been handled
  * @param cls
  * @param connection Connection tied to the request object
  * @param request Container holding information regarding the request
  * @param rtc
  */
-void HttpServer::onResponseSent(
+void Server::onResponseSent(
         void *cls
         , MHD_Connection *connection
         , void **request
@@ -161,14 +163,14 @@ void HttpServer::onResponseSent(
 }
 
 /**
- * @brief HttpServer::onRequest Handles a new incoming request
+ * @brief Server::onRequest Handles a new incoming request
  * @param connection Connection associated with the request
  * @param method Method associated with the request
  * @param path Path associated with the request
  * @param request Container to store a newly created request object
  * @return int
  */
-int32_t HttpServer::onRequest( MHD_Connection *connection
+int32_t Server::onRequest( MHD_Connection *connection
         , const char *method
         , const char *path
         , void **request )
@@ -207,13 +209,13 @@ int32_t HttpServer::onRequest( MHD_Connection *connection
 }
 
 /**
- * @brief HttpServer::onRequestBody Handles the body of the request data
+ * @brief Server::onRequestBody Handles the body of the request data
  * @param request Pointer to the request object
  * @param data Incoming request body data
  * @param size Size of the incoming request body data
  * @return
  */
-int32_t HttpServer::onRequestBody(
+int32_t Server::onRequestBody(
         Http::Request *request
         , const char *data
         , size_t *size )
@@ -225,18 +227,18 @@ int32_t HttpServer::onRequestBody(
 }
 
 /**
- * @brief HttpServer::onRequestDone Handles a completed request
+ * @brief Server::onRequestDone Handles a completed request
  * @param request Pointer to the request object
  * @return int
  */
-int32_t HttpServer::onRequestDone( Http::Request *request )
+int32_t Server::onRequestDone( Http::Request *request )
 {
     process( request );
     return MHD_YES;
 }
 
 
-void HttpServer::process( Http::Request *request )
+void Server::process( Http::Request *request )
 {
     const char *rspData = response_bad_request;
     const char *rspType = type_text_html;
@@ -260,28 +262,28 @@ void HttpServer::process( Http::Request *request )
 }
 
 /**
- * @brief HttpServer::HttpServer Constructor
+ * @brief Server::Server Constructor
  */
-HttpServer::HttpServer()
+Server::Server()
     : mPort( 8080 )
     , mDaemon( nullptr )
 {
-    // applyCommandCallback( std::bind( &HttpServer::defaultHandler
+    // applyCommandCallback( std::bind( &Server::defaultHandler
     //                                  , this, std::placeholders::_1, std::placeholders::_2 ) );
 
     // mRouter.addRoute( "/", MHD_HTTP_METHOD_POST
-    //                   , std::bind( &HttpServer::defaultAction, this, std::placeholders::_1, std::placeholders::_2 ) );
+    //                   , std::bind( &Server::defaultAction, this, std::placeholders::_1, std::placeholders::_2 ) );
 }
 
 /**
- * @brief HttpServer::~HttpServer Destructor
+ * @brief Server::~Server Destructor
  */
-HttpServer::~HttpServer()
+Server::~Server()
 {
     stop();
 }
 
-int32_t HttpServer::defaultHandler( const char *data, char **response )
+int32_t Server::defaultHandler( const char *data, char **response )
 {
     int32_t error = Error::Type::NONE;
 
@@ -291,7 +293,7 @@ int32_t HttpServer::defaultHandler( const char *data, char **response )
     return error;
 }
 
-void HttpServer::stop()
+void Server::stop()
 {
     if( mDaemon != nullptr ) {
         LOG_INFO( "stopping server...\n" );
@@ -300,7 +302,7 @@ void HttpServer::stop()
     }
 }
 
-int32_t HttpServer::listen()
+int32_t Server::listen()
 {
     int32_t error = 0;
 
@@ -329,21 +331,21 @@ int32_t HttpServer::listen()
     return error;
 }
 
-int32_t HttpServer::applyCommandCallback( CommandCallback callback )
+int32_t Server::applyCommandCallback( CommandCallback callback )
 {
     int32_t error = Error::Type::NONE;
     mCommandCallback = callback;
     return error;
 }
 
-int32_t HttpServer::applyRouter( Http::Router &router )
+int32_t Server::applyRouter( Http::Router &router )
 {
     int32_t error = Error::Type::NONE;
     mRouter = router;
     return error;
 }
 
-void HttpServer::defaultAction( Http::Request *request, Http::Response *response )
+void Server::defaultAction( Http::Request *request, Http::Response *response )
 {
     char *responseArray = nullptr;
     int32_t value = 0;
@@ -364,5 +366,7 @@ void HttpServer::defaultAction( Http::Request *request, Http::Response *response
         }
     }
 };
+
+}
 
 }
