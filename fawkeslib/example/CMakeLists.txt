@@ -9,6 +9,20 @@ project( FawkesLibExample
     DESCRIPTION "Fawkes Library example application"
     )
 
+# Creates a portable way to implement the __FILENAME__ macro
+# https://stackoverflow.com/questions/1706346/file-macro-manipulation-handling-at-compile-time
+function(define_file_basename_for_sources targetname)
+    get_target_property(source_files "${targetname}" SOURCES)
+    foreach(sourcefile ${source_files})
+        # Add the FILE_BASENAME=filename compile definition to the list.
+        get_filename_component(basename "${sourcefile}" NAME)
+        # Set the updated compile definitions on the source file.
+        set_property(
+            SOURCE "${sourcefile}" APPEND
+            PROPERTY COMPILE_DEFINITIONS "__FILENAME__=\"${basename}\"")
+    endforeach()
+endfunction()
+
 enable_language( C ASM )
 
 set( CMAKE_CXX_STANDARD 14 )
@@ -32,6 +46,8 @@ add_executable(
         ${FAWKES_EXAMPLE_INCLUDES}
         ${FAWKES_EXAMPLE_SOURCES}
     )
+
+define_file_basename_for_sources(${PROJECT_NAME})
 
 target_include_directories(
     ${PROJECT_NAME} PUBLIC
