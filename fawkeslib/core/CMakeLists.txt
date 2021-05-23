@@ -37,6 +37,7 @@ set( FAWKES_CORE_INCLUDE ${FAWKES_CORE_INCLUDE}
     ${FAWKES_CORE_INCLUDE_DIR}/control/control_template.h
     ${FAWKES_CORE_INCLUDE_DIR}/debug.h
     ${FAWKES_CORE_INCLUDE_DIR}/error/error.h
+    ${FAWKES_CORE_INCLUDE_DIR}/incbin.h
     ${FAWKES_CORE_INCLUDE_DIR}/json/cjson.h
     ${FAWKES_CORE_INCLUDE_DIR}/logger/log.h
     ${FAWKES_CORE_INCLUDE_DIR}/network/unix/unix_client.h
