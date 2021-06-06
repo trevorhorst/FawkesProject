@@ -6,7 +6,7 @@ namespace Fawkes
 /**
  * @brief Destructor
  */
-Client::~Client()
+ClientTemplate::~ClientTemplate()
 {
 
 }

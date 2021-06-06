@@ -10,8 +10,10 @@
 
 namespace Fawkes {
 
-class HttpClient
-        : public Client
+namespace Http {
+
+class Client
+        : public ClientTemplate
 {
 
 public:
@@ -31,9 +33,9 @@ public:
 
     using WriteFunction = size_t ( void *, size_t, size_t, std::string* );
 
-    HttpClient( const char *address = "127.0.0.1"
+    Client( const char *address = "127.0.0.1"
             , uint16_t port = 8080 );
-    ~HttpClient();
+    ~Client();
 
     void close();
     uint32_t clearHeaders();
@@ -62,6 +64,8 @@ private:
     char *mResponse;
     uint16_t mResponseSize;
 };
+
+}
 
 }
 

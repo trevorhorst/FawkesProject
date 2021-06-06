@@ -34,7 +34,7 @@ public:
     int32_t run();
     int32_t quit();
 
-    int32_t applyClient( Client *client );
+    int32_t applyClient( ClientTemplate *client );
 
     bool done();
 
@@ -42,13 +42,13 @@ public:
     static std::vector< std::string > tokenize(
             char *input, const char *delimiter = CONSOLE_DELIMITER_DEFAULT );
 
-    Client *client();
+    ClientTemplate *client();
 
 private:
     Console();
 
     bool mDone;
-    Client *mClient;
+    ClientTemplate *mClient;
 
 };
 

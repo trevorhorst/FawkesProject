@@ -13,7 +13,7 @@ namespace Fawkes
 {
 
 class UnixClient
-        : public Client
+        : public ClientTemplate
 {
     static const char *default_socket_path;
     static const char *hello_world;

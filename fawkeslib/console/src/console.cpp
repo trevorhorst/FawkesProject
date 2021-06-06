@@ -126,7 +126,7 @@ bool Console::done()
     return mDone;
 }
 
-int32_t Console::applyClient( Client *client )
+int32_t Console::applyClient( ClientTemplate *client )
 {
     int32_t error = Error::Type::NONE;
     mClient = client;
@@ -251,7 +251,7 @@ std::vector< std::string > Console::tokenize( char *input, const char *delimiter
     return tokenized;
 }
 
-Client *Console::client()
+ClientTemplate *Console::client()
 {
     return mClient;
 }

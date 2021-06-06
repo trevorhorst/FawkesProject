@@ -6,11 +6,11 @@
 namespace Fawkes
 {
 
-class Client
-        : public ControlTemplate< Client >
+class ClientTemplate
+        : public ControlTemplate< ClientTemplate >
 {
 public:
-    virtual ~Client();
+    virtual ~ClientTemplate();
     virtual int32_t send( const char *data, char *response, int32_t responseLength ) = 0;
 };
 

@@ -203,7 +203,7 @@
  * @endcode
  */
 #if !defined(INCBIN_PREFIX)
-#  define INCBIN_PREFIX g
+#  define INCBIN_PREFIX res_
 #endif
 
 /**
@@ -237,7 +237,7 @@
  * @endcode
  */
 #if !defined(INCBIN_STYLE)
-#  define INCBIN_STYLE INCBIN_STYLE_CAMEL
+#  define INCBIN_STYLE INCBIN_STYLE_SNAKE
 #endif
 
 /* Style lookup tables */
@@ -300,11 +300,11 @@
  * @endcode
  */
 #define INCBIN_EXTERN(NAME) \
-    INCBIN_EXTERNAL const INCBIN_ALIGN unsigned char \
+    INCBIN_EXTERNAL const INCBIN_ALIGN char \
         INCBIN_CONCATENATE( \
             INCBIN_CONCATENATE(INCBIN_PREFIX, NAME), \
             INCBIN_STYLE_IDENT(DATA))[]; \
-    INCBIN_EXTERNAL const INCBIN_ALIGN unsigned char *const \
+    INCBIN_EXTERNAL const INCBIN_ALIGN char *const \
     INCBIN_CONCATENATE( \
         INCBIN_CONCATENATE(INCBIN_PREFIX, NAME), \
         INCBIN_STYLE_IDENT(END)); \

@@ -98,7 +98,7 @@ void testHttp()
                                             , std::placeholders::_1
                                             , std::placeholders::_2 ) );
 
-    Fawkes::HttpClient client;
+    Fawkes::Http::Client client;
 
     // Create a console instance and provide a client for use by the server
     Fawkes::Console *console = &Fawkes::Console::getInstance();

@@ -7,10 +7,12 @@
 
 namespace Fawkes {
 
+namespace Http {
+
 /**
  * @brief Constructor
  */
-HttpClient::Data::Data()
+Client::Data::Data()
     : mData( nullptr )
     , mSize( 0 )
 {
@@ -19,7 +21,7 @@ HttpClient::Data::Data()
 /**
  * @brief Destructor
  */
-HttpClient::Data::~Data()
+Client::Data::~Data()
 {
     clear();
 }
@@ -28,7 +30,7 @@ HttpClient::Data::~Data()
  * @brief Read what has been written to the data block
  * @return Pointer to the data block
  */
-const char *HttpClient::Data::read()
+const char *Client::Data::read()
 {
     return mData;
 }
@@ -38,7 +40,7 @@ const char *HttpClient::Data::read()
  * @param data Data to write
  * @param size Size of the data to write
  */
-void HttpClient::Data::write( const char *data, size_t size )
+void Client::Data::write( const char *data, size_t size )
 {
     // Increase the size of our data
     mSize += size;
@@ -63,7 +65,7 @@ void HttpClient::Data::write( const char *data, size_t size )
 /**
  * @brief Clears the data
  */
-void HttpClient::Data::clear()
+void Client::Data::clear()
 {
     if( mData ) {
         mSize = 0;
@@ -72,12 +74,12 @@ void HttpClient::Data::clear()
     }
 }
 
-char *HttpClient::Data::raw()
+char *Client::Data::raw()
 {
     return mData;
 }
 
-size_t HttpClient::Data::size()
+size_t Client::Data::size()
 {
     return mSize;
 }
@@ -87,7 +89,7 @@ size_t HttpClient::Data::size()
  * @param address Address to
  * @param port
  */
-HttpClient::HttpClient( const char *address , uint16_t port )
+Client::Client( const char *address , uint16_t port )
     : mCurl( nullptr )
     , mHeaders( nullptr )
     , mPort( port )
@@ -112,7 +114,7 @@ HttpClient::HttpClient( const char *address , uint16_t port )
 /**
  * @brief Destructor
  */
-HttpClient::~HttpClient()
+Client::~Client()
 {
     close();
 }
@@ -120,7 +122,7 @@ HttpClient::~HttpClient()
 /**
  * @brief Cleans up the HTTP connection
  */
-void HttpClient::close()
+void Client::close()
 {
     clearHeaders();
     curl_easy_cleanup( mCurl );
@@ -132,7 +134,7 @@ void HttpClient::close()
  * @brief Cleans up the headers list
  * @return Error code
  */
-uint32_t HttpClient::clearHeaders()
+uint32_t Client::clearHeaders()
 {
     uint32_t error = Error::Type::NONE;
     if( mHeaders ) {
@@ -147,7 +149,7 @@ uint32_t HttpClient::clearHeaders()
  * @param url Reference to the desired server
  * @return Error code
  */
-uint32_t HttpClient::applyUrl( const std::string &url )
+uint32_t Client::applyUrl( const std::string &url )
 {
     uint32_t error = Error::Type::NONE;
     curl_easy_setopt( mCurl, CURLOPT_URL, url.c_str() );
@@ -159,7 +161,7 @@ uint32_t HttpClient::applyUrl( const std::string &url )
  * @param headers Reference to the list of desired headers
  * @return Error code
  */
-uint32_t HttpClient::applyHeaders( const std::vector<std::string> &headers )
+uint32_t Client::applyHeaders( const std::vector<std::string> &headers )
 {
     uint32_t error = Error::Type::NONE;
 
@@ -177,7 +179,7 @@ uint32_t HttpClient::applyHeaders( const std::vector<std::string> &headers )
  * @param writeFunction Pointer to the desired write function
  * @return Error code
  */
-uint32_t HttpClient::applyWriteFunction( WriteFunction *writeFunction )
+uint32_t Client::applyWriteFunction( WriteFunction *writeFunction )
 {
     uint32_t error = Error::Type::NONE;
     curl_easy_setopt( mCurl, CURLOPT_WRITEFUNCTION, *writeFunction );
@@ -192,7 +194,7 @@ uint32_t HttpClient::applyWriteFunction( WriteFunction *writeFunction )
  * @param d Pointer to the existing data
  * @return
  */
-size_t HttpClient::writeFunction(
+size_t Client::writeFunction(
         void *ptr, size_t size, size_t nmemb, std::string *data )
 {
     data->append( static_cast< char* >( ptr ), size * nmemb );
@@ -203,7 +205,7 @@ size_t HttpClient::writeFunction(
  * @brief Performs a GET request
  * @return Response string
  */
-std::string HttpClient::get()
+std::string Client::get()
 {
     std::string response_string;
     if( mCurl ) {
@@ -228,7 +230,7 @@ std::string HttpClient::get()
  * @brief Sends a message
  * @param str Message to send
  */
-int32_t HttpClient::send( const char *str, char *response, int32_t responseLength )
+int32_t Client::send( const char *str, char *response, int32_t responseLength )
 {
     uint32_t error = Error::Type::NONE;
 
@@ -243,7 +245,7 @@ int32_t HttpClient::send( const char *str, char *response, int32_t responseLengt
     curl_easy_setopt( mCurl,  CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_1_1 );
     curl_easy_setopt( mCurl,    CURLOPT_POSTFIELDS, str );
     curl_easy_setopt( mCurl,      CURLOPT_NOSIGNAL, 0 );
-    curl_easy_setopt( mCurl, CURLOPT_WRITEFUNCTION, HttpClient::writeFunction );
+    curl_easy_setopt( mCurl, CURLOPT_WRITEFUNCTION, Client::writeFunction );
     curl_easy_setopt( mCurl,     CURLOPT_WRITEDATA, &mData );
 
     // Set up for cookie usage
@@ -270,6 +272,8 @@ int32_t HttpClient::send( const char *str, char *response, int32_t responseLengt
     curl_slist_free_all( headers );
 
     return error;
+}
+
 }
 
 }

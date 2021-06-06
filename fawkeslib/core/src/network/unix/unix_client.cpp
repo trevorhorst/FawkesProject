@@ -10,7 +10,7 @@ const char *UnixClient::hello_world = "helloworld";
  * @brief UnixClient::UnixClient Constructor
  */
 UnixClient::UnixClient()
-    : Client()
+    : ClientTemplate()
     , mSocketPath{ 0 }
     , mSocketDestinationPath{ 0 }
 {
